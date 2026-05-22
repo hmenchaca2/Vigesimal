@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import type { VigesimalSchema } from '../../types'
-import { encodeTuple, encodeTabular } from '../panels'
+import type { VigesimalSchema, DeltaMap, EmblemMap } from '../../types'
+import { encodeTuple, encodeTabular, encodeDelta, encodeEmblem } from '../panels'
 
 const userSchema: VigesimalSchema = {
   name: 'S1',
@@ -73,5 +73,48 @@ describe('encodeTabular (Panel-B)', () => {
     expect(encodeTabular(records, schema)).toBe(
       'R1x3[id,active,score]:\n  1,+,0\n  2,-,_\n  3,+,5'
     )
+  })
+})
+
+const stepSchema: VigesimalSchema = {
+  name: 'S1',
+  fields: [
+    { name: 'tier', type: 'string' },
+    { name: 'step', type: 'string' },
+    { name: 'lang', type: 'string' },
+    { name: 'active', type: 'boolean' },
+  ],
+}
+
+describe('encodeDelta (Panel-C)', () => {
+  it('encodes only changed fields, empty positions for unchanged', () => {
+    const delta: DeltaMap = { step: '5/8' }
+    expect(encodeDelta(delta, stepSchema)).toBe('~[|5/8||]')
+  })
+
+  it('encodes multiple changed fields', () => {
+    const delta: DeltaMap = { tier: 'free', active: false }
+    expect(encodeDelta(delta, stepSchema)).toBe('~[free|||-]')
+  })
+
+  it('encodes null change as _', () => {
+    const delta: DeltaMap = { lang: null }
+    expect(encodeDelta(delta, stepSchema)).toBe('~[||_|]')
+  })
+
+  it('encodes all-unchanged delta as empty positions', () => {
+    const delta: DeltaMap = {}
+    expect(encodeDelta(delta, stepSchema)).toBe('~[|||]')
+  })
+})
+
+describe('encodeEmblem (Panel-D)', () => {
+  it('produces EMBLEM: line with id=alias pairs', () => {
+    const aliases: EmblemMap = { 'user-abc-123-uuid': '@u1', 'org-xyz-456-long': '@o1' }
+    expect(encodeEmblem(aliases)).toBe('EMBLEM: user-abc-123-uuid=@u1, org-xyz-456-long=@o1')
+  })
+
+  it('handles single alias', () => {
+    expect(encodeEmblem({ 'some-long-id-here': '@a1' })).toBe('EMBLEM: some-long-id-here=@a1')
   })
 })

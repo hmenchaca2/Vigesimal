@@ -22,11 +22,18 @@ export function encodeTabular(
   return [header, ...rows].join('\n')
 }
 
-// Panel-C and Panel-D added in Task 5
-export function encodeDelta(_delta: DeltaMap, _schema: VigesimalSchema): string {
-  throw new Error('not implemented')
+export function encodeDelta(
+  delta: DeltaMap,
+  schema: VigesimalSchema
+): string {
+  const values = schema.fields.map(f => {
+    if (!(f.name in delta)) return ''
+    return encodeScalar(delta[f.name])
+  })
+  return `~[${values.join('|')}]`
 }
 
-export function encodeEmblem(_aliases: EmblemMap): string {
-  throw new Error('not implemented')
+export function encodeEmblem(aliases: EmblemMap): string {
+  const pairs = Object.entries(aliases).map(([id, alias]) => `${id}=${alias}`)
+  return `EMBLEM: ${pairs.join(', ')}`
 }
