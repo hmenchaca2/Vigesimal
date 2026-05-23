@@ -5,6 +5,12 @@ import { buildCodex } from './codex'
 
 export class SchemaRegistry {
   private schemas = new Map<string, VigesimalSchema>()
+  private schemaCounter = 0
+
+  private nextSchemaId(): string {
+    this.schemaCounter++
+    return `S${this.schemaCounter}`
+  }
 
   register(name: string, schema: VigesimalSchema): void {
     this.schemas.set(name, schema)
@@ -17,7 +23,8 @@ export class SchemaRegistry {
   }
 
   infer(name: string, sampleData: Record<string, unknown>[]): VigesimalSchema {
-    const schema = inferSchema(name, sampleData)
+    const schemaId = this.nextSchemaId()
+    const schema = inferSchema(schemaId, sampleData)
     this.schemas.set(name, schema)
     return schema
   }
