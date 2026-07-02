@@ -97,6 +97,18 @@ def _build_codes(
 _LEGEND = "bool: 1=yes 0=no  null: _"
 
 
+def _quote(s: str) -> str:
+    """CSV-style quote: wrap in double quotes, double internal quotes."""
+    return '"' + s.replace('"', '""') + '"'
+
+
+def _codes_value(s: str) -> str:
+    """Render a value for the codes: line — quoted if ambiguous."""
+    if any(c in s for c in ' =,"'):
+        return _quote(s)
+    return s
+
+
 def _flatten_dict(d: dict, prefix: str = "") -> list[tuple[str, object]]:
     items: list[tuple[str, object]] = []
     for k, v in d.items():
@@ -135,7 +147,7 @@ class VigesimalV4Encoder(Encoder):
         ]
         if codes:
             pairs = [
-                f"{code}={value}"
+                f"{code}={_codes_value(value)}"
                 for field in fields if field in codes
                 for value, code in codes[field].items()
             ]
@@ -150,6 +162,13 @@ class VigesimalV4Encoder(Encoder):
                 field_codes = codes.get(f)
                 if field_codes and isinstance(v, str) and v in field_codes:
                     row.append(field_codes[v])
+                elif (
+                    field_codes
+                    and isinstance(v, str)
+                    and v in field_codes.values()
+                ):
+                    # Literal value collides with an assigned code — quote it
+                    row.append(_quote(v))
                 else:
                     row.append(_v4_scalar(v))
             lines.append(",".join(row))
