@@ -36,3 +36,9 @@ class TestScalar:
 
     def test_string_with_newline_is_quoted(self):
         assert _v4_scalar("a\nb") == '"a\nb"'
+
+    def test_empty_string_literal(self):
+        assert _v4_scalar("") == ""
+
+    def test_lone_quote_char_is_quoted_and_doubled(self):
+        assert _v4_scalar('"') == '""""'
