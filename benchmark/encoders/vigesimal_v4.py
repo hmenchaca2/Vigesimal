@@ -92,3 +92,71 @@ def _build_codes(
             value: f"{letter}{_DIGITS[i]}" for i, (value, _) in enumerate(payers)
         }
     return codes
+
+
+_LEGEND = "bool: 1=yes 0=no  null: _"
+
+
+def _flatten_dict(d: dict, prefix: str = "") -> list[tuple[str, object]]:
+    items: list[tuple[str, object]] = []
+    for k, v in d.items():
+        full_key = f"{prefix}.{k}" if prefix else k
+        if isinstance(v, dict):
+            items.extend(_flatten_dict(v, prefix=full_key))
+        else:
+            items.append((full_key, v))
+    return items
+
+
+class VigesimalV4Encoder(Encoder):
+    name = "vigesimal_v4"
+
+    def encode(self, dataset_name: str, data: list | dict) -> str:
+        if isinstance(data, list):
+            return self._encode_tabular(dataset_name, data)
+        return self._encode_config(dataset_name, data)
+
+    def _encode_tabular(self, name: str, records: list) -> str:
+        if not records:
+            return f"## VIG4 {name}: 0 rows\n"
+
+        # Field union across all records, first-seen order
+        fields: list[str] = []
+        for rec in records:
+            for k in rec:
+                if k not in fields:
+                    fields.append(k)
+
+        codes = _build_codes(fields, records)
+
+        lines = [
+            f"## VIG4 {name}: {len(records)} rows",
+            f"fields: {','.join(fields)}",
+        ]
+        if codes:
+            pairs = [
+                f"{code}={value}"
+                for field in fields if field in codes
+                for value, code in codes[field].items()
+            ]
+            lines.append("codes: " + " ".join(pairs))
+        lines.append(_LEGEND)
+        lines.append("")
+
+        for rec in records:
+            row = []
+            for f in fields:
+                v = rec.get(f)
+                field_codes = codes.get(f)
+                if field_codes and isinstance(v, str) and v in field_codes:
+                    row.append(field_codes[v])
+                else:
+                    row.append(_v4_scalar(v))
+            lines.append(",".join(row))
+        return "\n".join(lines) + "\n"
+
+    def _encode_config(self, name: str, cfg: dict) -> str:
+        lines = [f"## VIG4 {name}", _LEGEND, ""]
+        for key, val in _flatten_dict(cfg):
+            lines.append(f"{key}: {_v4_scalar(val)}")
+        return "\n".join(lines) + "\n"

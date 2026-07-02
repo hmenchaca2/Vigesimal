@@ -100,3 +100,75 @@ class TestBuildCodes:
         records = [{"salary": 95000} for _ in range(50)]
         codes = _build_codes(["salary"], records)
         assert codes == {}
+
+
+from encoders.vigesimal_v4 import VigesimalV4Encoder
+
+
+class TestEncoderTabular:
+    def setup_method(self):
+        self.enc = VigesimalV4Encoder()
+
+    def test_header_and_rows(self):
+        records = [
+            {"id": 1, "department": "Engineering", "active": True},
+            {"id": 2, "department": "Engineering", "active": False},
+            {"id": 3, "department": "Engineering", "active": True},
+        ]
+        out = self.enc.encode("employee_records", records)
+        lines = out.splitlines()
+        assert lines[0] == "## VIG4 employee_records: 3 rows"
+        assert lines[1] == "fields: id,department,active"
+        assert lines[2] == "codes: D1=Engineering"
+        assert lines[3] == "bool: 1=yes 0=no  null: _"
+        assert lines[4] == ""
+        assert lines[5] == "1,D1,1"
+        assert lines[6] == "2,D1,0"
+        assert lines[7] == "3,D1,1"
+
+    def test_codes_line_omitted_when_empty(self):
+        records = [{"id": 1, "ok": True}, {"id": 2, "ok": False}]
+        out = self.enc.encode("tiny", records)
+        assert "codes:" not in out
+        lines = out.splitlines()
+        assert lines[0] == "## VIG4 tiny: 2 rows"
+        assert lines[1] == "fields: id,ok"
+        assert lines[2] == "bool: 1=yes 0=no  null: _"
+
+    def test_field_union_and_absent_as_underscore(self):
+        records = [{"a": 1}, {"a": 2, "b": "x"}]
+        out = self.enc.encode("sparse", records)
+        lines = out.splitlines()
+        assert lines[1] == "fields: a,b"
+        assert lines[-2] == "1,_"
+        assert lines[-1] == "2,x"
+
+    def test_empty_dataset(self):
+        out = self.enc.encode("empty", [])
+        assert out == "## VIG4 empty: 0 rows\n"
+
+    def test_uncoded_value_stays_literal(self):
+        records = [{"id": i, "name": f"Person {i}"} for i in range(5)]
+        out = self.enc.encode("people", records)
+        assert "Person 0" in out
+
+
+class TestEncoderConfig:
+    def setup_method(self):
+        self.enc = VigesimalV4Encoder()
+
+    def test_flat_dotted_keys(self):
+        cfg = {
+            "database": {"host": "db.example.com", "port": 5432},
+            "features": {"dark_mode": True},
+            "version": "2.1",
+        }
+        out = self.enc.encode("config", cfg)
+        lines = out.splitlines()
+        assert lines[0] == "## VIG4 config"
+        assert lines[1] == "bool: 1=yes 0=no  null: _"
+        assert lines[2] == ""
+        assert "database.host: db.example.com" in lines
+        assert "database.port: 5432" in lines
+        assert "features.dark_mode: 1" in lines
+        assert "version: 2.1" in lines
