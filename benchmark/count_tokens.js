@@ -5,7 +5,9 @@
  * Writes JSON array of counts to stdout: [3, 7]
  */
 
-const { getEncoding } = require("/Users/hmenchaca/Documents/Apps/Vigesimal/tokenizer-bench/node_modules/js-tiktoken");
+// js-tiktoken is installed in the sibling tokenizer-bench workspace
+const path = require("path");
+const { getEncoding } = require(path.join(__dirname, "..", "tokenizer-bench", "node_modules", "js-tiktoken"));
 
 let input = "";
 process.stdin.setEncoding("utf8");
