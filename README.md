@@ -1,5 +1,7 @@
 # Vigesimal
 
+[![npm](https://img.shields.io/npm/v/vigesimal)](https://www.npmjs.com/package/vigesimal) [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
 **Token-efficient serialization for LLM context.** Flat, repeated records — query results, agent state, tool output — encoded in a compact block the model reads at least as accurately as JSON, at a fraction of the tokens.
 
 ## Show me in 30 seconds
@@ -52,10 +54,10 @@ The headline: **vigesimal edges out TOON-style CSV on accuracy, tokens, and effi
 ## Installation
 
 ```bash
-cd vigesimal
-npm install
-npm run build
+npm install vigesimal
 ```
+
+Or from source: `cd vigesimal && npm install && npm run build`.
 
 ## Usage
 
