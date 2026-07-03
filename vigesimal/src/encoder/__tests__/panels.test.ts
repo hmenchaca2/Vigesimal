@@ -1,120 +1,93 @@
 import { describe, it, expect } from 'vitest'
-import type { VigesimalSchema, DeltaMap, EmblemMap } from '../../types'
-import { encodeTuple, encodeTabular, encodeDelta, encodeEmblem } from '../panels'
+import type { VigesimalSchema } from '../../types'
+import { encodeHeader, encodeRow, encodeTabular, encodeDelta, LEGEND } from '../panels'
+import { buildCodes } from '../codes'
 
-const userSchema: VigesimalSchema = {
-  name: 'S1',
-  fields: [
-    { name: 'tier', type: 'string', domain: ['prem', 'free'] },
-    { name: 'step', type: 'string' },
-    { name: 'lang', type: 'string' },
-    { name: 'active', type: 'boolean' },
-  ],
-}
-
-describe('encodeTuple (Panel-A)', () => {
-  it('encodes a record to a positional tuple', () => {
-    const record = { tier: 'prem', step: '3/7', lang: 'en', active: true }
-    expect(encodeTuple(record, userSchema)).toBe('S1[prem|3/7|en|+]')
-  })
-
-  it('encodes null as _', () => {
-    const record = { tier: null, step: '1/3', lang: 'en', active: false }
-    expect(encodeTuple(record, userSchema)).toBe('S1[_|1/3|en|-]')
-  })
-
-  it('encodes missing fields as _', () => {
-    const record = { tier: 'free', step: '1/3' }
-    expect(encodeTuple(record, userSchema)).toBe('S1[free|1/3|_|_]')
-  })
-
-  it('escapes special chars in string values', () => {
-    const record = { tier: 'a|b', step: '1/3', lang: 'en', active: true }
-    expect(encodeTuple(record, userSchema)).toBe('S1[a\\|b|1/3|en|+]')
-  })
-})
-
-const ticketSchema: VigesimalSchema = {
-  name: 'T1',
+const schema: VigesimalSchema = {
+  name: 'employees',
   fields: [
     { name: 'id', type: 'numeric' },
-    { name: 'status', type: 'string', domain: ['open', 'closed'] },
-    { name: 'priority', type: 'string', domain: ['high', 'low'] },
-  ],
-}
-
-describe('encodeTabular (Panel-B)', () => {
-  it('produces S1xN header and comma-delimited rows', () => {
-    const records = [
-      { id: 101, status: 'open', priority: 'high' },
-      { id: 102, status: 'closed', priority: 'low' },
-      { id: 103, status: 'open', priority: 'high' },
-    ]
-    const result = encodeTabular(records, ticketSchema)
-    expect(result).toBe(
-      'T1x3[id,status,priority]:\n  101,open,high\n  102,closed,low\n  103,open,high'
-    )
-  })
-
-  it('uses scalar encoding in rows (booleans, nulls)', () => {
-    const schema: VigesimalSchema = {
-      name: 'R1',
-      fields: [
-        { name: 'id', type: 'numeric' },
-        { name: 'active', type: 'boolean' },
-        { name: 'score', type: 'numeric' },
-      ],
-    }
-    const records = [
-      { id: 1, active: true, score: 0 },
-      { id: 2, active: false, score: null },
-      { id: 3, active: true, score: 5 },
-    ]
-    expect(encodeTabular(records, schema)).toBe(
-      'R1x3[id,active,score]:\n  1,+,0\n  2,-,_\n  3,+,5'
-    )
-  })
-})
-
-const stepSchema: VigesimalSchema = {
-  name: 'S1',
-  fields: [
-    { name: 'tier', type: 'string' },
-    { name: 'step', type: 'string' },
-    { name: 'lang', type: 'string' },
+    { name: 'department', type: 'string' },
     { name: 'active', type: 'boolean' },
   ],
 }
 
-describe('encodeDelta (Panel-C)', () => {
-  it('encodes only changed fields, empty positions for unchanged', () => {
-    const delta: DeltaMap = { step: '5/8' }
-    expect(encodeDelta(delta, stepSchema)).toBe('~[|5/8||]')
+const records = [
+  { id: 1, department: 'Engineering', active: true },
+  { id: 2, department: 'Engineering', active: false },
+  { id: 3, department: 'Engineering', active: true },
+]
+
+describe('encodeHeader', () => {
+  it('emits name, count, fields, codes, legend', () => {
+    const codes = buildCodes(['id', 'department', 'active'], records)
+    const h = encodeHeader('employees', records.length, schema, codes)
+    expect(h.split('\n')).toEqual([
+      '## employees: 3 rows',
+      'fields: id,department,active',
+      'codes: D1=Engineering',
+      LEGEND,
+      '',
+    ])
   })
 
-  it('encodes multiple changed fields', () => {
-    const delta: DeltaMap = { tier: 'free', active: false }
-    expect(encodeDelta(delta, stepSchema)).toBe('~[free|||-]')
+  it('omits codes line when no codes', () => {
+    const h = encodeHeader('t', 1, schema, new Map())
+    expect(h).not.toContain('codes:')
   })
 
-  it('encodes null change as _', () => {
-    const delta: DeltaMap = { lang: null }
-    expect(encodeDelta(delta, stepSchema)).toBe('~[||_|]')
-  })
-
-  it('encodes all-unchanged delta as empty positions', () => {
-    const delta: DeltaMap = {}
-    expect(encodeDelta(delta, stepSchema)).toBe('~[|||]')
+  it('quotes multiword code values', () => {
+    const recs = Array.from({ length: 10 }, () => ({ city: 'New York City' }))
+    const s: VigesimalSchema = { name: 'c', fields: [{ name: 'city', type: 'string' }] }
+    const codes = buildCodes(['city'], recs)
+    expect(encodeHeader('c', 10, s, codes)).toContain('codes: C1="New York City"')
   })
 })
 
-describe('encodeEmblem (Panel-D)', () => {
-  it('produces EMBLEM: line with id=alias pairs', () => {
-    const aliases: EmblemMap = { 'user-abc-123-uuid': '@u1', 'org-xyz-456-long': '@o1' }
-    expect(encodeEmblem(aliases)).toBe('EMBLEM: user-abc-123-uuid=@u1, org-xyz-456-long=@o1')
+describe('encodeRow', () => {
+  it('substitutes codes and renders scalars', () => {
+    const codes = buildCodes(['id', 'department', 'active'], records)
+    expect(encodeRow(records[0], schema, codes)).toBe('1,D1,1')
+    expect(encodeRow(records[1], schema, codes)).toBe('2,D1,0')
   })
 
-  it('handles single alias', () => {
-    expect(encodeEmblem({ 'some-long-id-here': '@a1' })).toBe('EMBLEM: some-long-id-here=@a1')
+  it('renders absent fields as _', () => {
+    expect(encodeRow({ id: 5 }, schema, new Map())).toBe('5,_,_')
+  })
+
+  it('quotes a literal equal to an assigned code', () => {
+    const recs = [...records.map(r => ({ department: r.department })), { department: 'D1' }]
+    const s: VigesimalSchema = { name: 'x', fields: [{ name: 'department', type: 'string' }] }
+    const codes = buildCodes(['department'], recs)
+    expect(encodeRow({ department: 'D1' }, s, codes)).toBe('"D1"')
+  })
+})
+
+describe('encodeTabular', () => {
+  it('emits header plus one row per record', () => {
+    const out = encodeTabular('employees', records, schema)
+    const lines = out.split('\n')
+    expect(lines[0]).toBe('## employees: 3 rows')
+    expect(lines.at(-2)).toBe('3,D1,1')
+    expect(lines.at(-1)).toBe('')
+  })
+
+  it('handles empty record lists', () => {
+    expect(encodeTabular('e', [], schema)).toBe('## e: 0 rows\n')
+  })
+})
+
+describe('encodeDelta', () => {
+  it('renders keyed changed fields', () => {
+    expect(encodeDelta({ step: '3/5', status: 'err' })).toBe('~step=3/5,~status=err')
+  })
+  it('renders deletions as _', () => {
+    expect(encodeDelta({ gone: undefined })).toBe('~gone=_')
+  })
+  it('quotes values containing commas', () => {
+    expect(encodeDelta({ msg: 'a,b' })).toBe('~msg="a,b"')
+  })
+  it('renders empty delta as empty ~', () => {
+    expect(encodeDelta({})).toBe('~')
   })
 })

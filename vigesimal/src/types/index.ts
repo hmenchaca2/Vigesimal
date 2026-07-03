@@ -3,7 +3,6 @@ export enum Panel {
   A = 'A',
   B = 'B',
   C = 'C',
-  D = 'D',
 }
 
 // Field type hint for schema inference
@@ -24,9 +23,6 @@ export interface VigesimalSchema {
 
 // Delta map: present keys = changed fields, absent keys = unchanged
 export type DeltaMap = Record<string, unknown>
-
-// Emblem alias map: long ID → short alias (e.g. "user-abc-123-uuid" → "@u1")
-export type EmblemMap = Record<string, string>
 
 // Typed reset event union
 export type ResetEvent =
