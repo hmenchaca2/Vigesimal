@@ -29,7 +29,7 @@ The same principles drive this format:
 ## Why it works (the benefits)
 
 1. **Fewer tokens = lower cost, more context.** ~62% smaller than pretty JSON, ~40% smaller than compact JSON, measurably smaller than TOON-style CSV — across employee records, e-commerce orders, time series, GitHub repos, and event logs.
-2. **The model reads it *better*, not worse.** Compressed ≠ cryptic. Benchmarked on claude-haiku-4-5 with 179 retrieval/aggregation/filtering questions: vigesimal v4 scored **63.7%** accuracy vs 63.1% for TOON and 54.2% for pretty JSON. Verbose JSON actively hurts comprehension.
+2. **The model reads it *better*, not worse.** Compressed ≠ cryptic. Benchmarked on claude-haiku-4-5 with 179 retrieval/aggregation/filtering questions: Vigesimal v1 scored **63.7%** accuracy vs 63.1% for TOON and 54.2% for pretty JSON. Verbose JSON actively hurts comprehension.
 3. **Lossless, unlike naive CSV.** Values containing commas or quotes are properly quoted; literals that collide with dictionary codes are disambiguated. Everything round-trips — there's a decoder and verifier built in.
 4. **Session deltas.** For agent state that changes a little every turn, send only what changed: `~step=3/5,~status=ok`. A drift-aware tracker decides when to re-send the full state.
 5. **Honest compression.** Dictionary codes are declared only when a real token-count payoff rule says they save more than they cost. No code spam.
@@ -38,9 +38,9 @@ The same principles drive this format:
 
 | Encoder | Accuracy | Avg tokens | Efficiency (acc/token) |
 |---|---|---|---|
-| **vigesimal v4** | **63.7%** | **1,888** | **0.296** |
+| **vigesimal v1 (this release)** | **63.7%** | **1,888** | **0.296** |
 | toon | 63.1% | 1,901 | 0.287 |
-| vigesimal v1 | 58.7% | 2,074 | 0.246 |
+| early prototype | 58.7% | 2,074 | 0.246 |
 | json_compact | 56.4% | 3,253 | 0.155 |
 | json_pretty | 54.2% | 5,005 | 0.091 |
 
@@ -67,7 +67,7 @@ registry.infer('users', users)          // infer schema from sample data
 const compressor = new AdaptiveCompressor(registry)
 const { output, stats } = compressor.compressRecords(users, 'users')
 
-console.log(output)                     // v4 block: header + codes + CSV rows
+console.log(output)                     // vigesimal block: header + codes + CSV rows
 console.log(stats.reduction)            // e.g. 0.58 — 58% estimated token savings
 ```
 

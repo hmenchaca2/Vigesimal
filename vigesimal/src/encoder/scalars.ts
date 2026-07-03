@@ -4,7 +4,7 @@ export function quoteCsv(s: string): string {
   return '"' + s.replace(/"/g, '""') + '"'
 }
 
-// v4 scalars: true->1 false->0 null/undefined->_ ; strings CSV-quoted when
+// vigesimal scalars: true->1 false->0 null/undefined->_ ; strings CSV-quoted when
 // they contain a comma, quote, or newline.
 export function encodeScalar(v: unknown): string {
   if (v === true) return '1'

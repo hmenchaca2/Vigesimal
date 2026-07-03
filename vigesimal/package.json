@@ -1,7 +1,7 @@
 {
   "name": "vigesimal",
-  "version": "0.1.0",
-  "description": "Token compression for LLM prompts — full-panel Vigesimal v4 SDK",
+  "version": "1.0.0",
+  "description": "Token compression for LLM prompts — Vigesimal v1 SDK",
   "type": "module",
   "exports": {
     ".": {

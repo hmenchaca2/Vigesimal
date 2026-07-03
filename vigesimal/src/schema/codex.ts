@@ -1,7 +1,7 @@
 import type { VigesimalSchema } from '../types'
 import { LEGEND } from '../encoder/panels'
 
-// The v4 "codex" is just the header contract: field order + legend.
+// The vigesimal "codex" is just the header contract: field order + legend.
 // Inject this once per session so the model knows the wire format.
 export function buildCodex(schema: VigesimalSchema): string {
   const lines = [

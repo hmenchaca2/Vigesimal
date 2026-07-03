@@ -51,7 +51,7 @@ describe('decodeTabular', () => {
   })
 
   it('throws on malformed input', () => {
-    expect(() => decodeTabular('not a v4 block', schema)).toThrow()
+    expect(() => decodeTabular('not a vigesimal block', schema)).toThrow()
   })
 })
 

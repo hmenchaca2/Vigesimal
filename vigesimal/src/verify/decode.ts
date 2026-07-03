@@ -9,11 +9,11 @@ interface ParsedHeader {
 
 function parseHeader(lines: string[]): ParsedHeader {
   if (!lines[0]?.startsWith('## ')) {
-    throw new Error(`Malformed v4 block: expected "## <name>: N rows", got ${lines[0]!}`)
+    throw new Error(`Malformed vigesimal block: expected "## <name>: N rows", got ${lines[0]!}`)
   }
   const fieldsLine = lines[1]
   if (!fieldsLine?.startsWith('fields: ')) {
-    throw new Error('Malformed v4 block: missing "fields:" line')
+    throw new Error('Malformed vigesimal block: missing "fields:" line')
   }
   const fields = fieldsLine.slice('fields: '.length).split(',')
 
@@ -31,7 +31,7 @@ function parseHeader(lines: string[]): ParsedHeader {
     i++
   }
   if (!lines[i]?.startsWith('bool: ')) {
-    throw new Error('Malformed v4 block: missing legend line')
+    throw new Error('Malformed vigesimal block: missing legend line')
   }
   // Body starts immediately after the legend line
   return { fields, codes, bodyStart: i + 1 }
