@@ -1,67 +1,86 @@
 import { describe, it, expect } from 'vitest'
 import type { VigesimalSchema } from '../../types'
+import { encodeTabular, encodeDelta } from '../../encoder/panels'
+import { decodeTabular, decodeDelta } from '../decode'
 import { VigesimalVerifier } from '../VigesimalVerifier'
-import { splitByUnescapedPipe } from '../decode'
 
 const schema: VigesimalSchema = {
-  name: 'S1',
+  name: 'employees',
   fields: [
-    { name: 'tier', type: 'string' },
-    { name: 'step', type: 'string' },
+    { name: 'id', type: 'numeric' },
+    { name: 'department', type: 'string' },
     { name: 'active', type: 'boolean' },
   ],
 }
 
-describe('splitByUnescapedPipe', () => {
-  it('splits on unescaped pipes', () => {
-    expect(splitByUnescapedPipe('a|b|c')).toEqual(['a', 'b', 'c'])
+const records = [
+  { id: 1, department: 'Engineering', active: true },
+  { id: 2, department: 'Engineering', active: false },
+  { id: 3, department: 'Sales, West', active: true },
+]
+
+describe('decodeTabular', () => {
+  it('round-trips records through encode/decode', () => {
+    const encoded = encodeTabular('employees', records, schema)
+    expect(decodeTabular(encoded, schema)).toEqual(records)
   })
-  it('does not split on escaped pipes', () => {
-    expect(splitByUnescapedPipe('a\\|b|c')).toEqual(['a\\|b', 'c'])
+
+  it('resolves codes back to values', () => {
+    const many = Array.from({ length: 10 }, (_, i) => ({
+      id: i, department: 'Engineering', active: true,
+    }))
+    const encoded = encodeTabular('e', many, schema)
+    expect(encoded).toContain('codes: D1=Engineering')
+    expect(decodeTabular(encoded, schema)[0].department).toBe('Engineering')
   })
-  it('handles empty segments', () => {
-    expect(splitByUnescapedPipe('a||c')).toEqual(['a', '', 'c'])
+
+  it('decodes quoted code-collision literals as literals', () => {
+    const s: VigesimalSchema = { name: 'x', fields: [{ name: 'department', type: 'string' }] }
+    const recs = [
+      ...Array.from({ length: 10 }, () => ({ department: 'Engineering' })),
+      { department: 'D1' },
+    ]
+    const decoded = decodeTabular(encodeTabular('x', recs, s), s)
+    expect(decoded.at(-1)).toEqual({ department: 'D1' })
+  })
+
+  it('decodes absent fields as null', () => {
+    const encoded = '## t: 1 rows\nfields: id,department,active\nbool: 1=yes 0=no  null: _\n\n7,_,_\n'
+    expect(decodeTabular(encoded, schema)).toEqual([{ id: 7, department: null, active: null }])
+  })
+
+  it('throws on malformed input', () => {
+    expect(() => decodeTabular('not a v4 block', schema)).toThrow()
   })
 })
 
-describe('VigesimalVerifier.decode()', () => {
-  const verifier = new VigesimalVerifier()
-
-  it('decodes a tuple back to a record', () => {
-    const result = verifier.decode('S1[prem|3/7|+]', schema)
-    expect(result).toEqual({ tier: 'prem', step: '3/7', active: true })
+describe('decodeDelta', () => {
+  it('round-trips a keyed delta', () => {
+    const delta = { department: 'Sales', active: false }
+    expect(decodeDelta(encodeDelta(delta), schema)).toEqual(delta)
   })
-
   it('decodes _ as null', () => {
-    const result = verifier.decode('S1[_|1/5|-]', schema)
-    expect(result.tier).toBeNull()
-    expect(result.active).toBe(false)
+    expect(decodeDelta('~department=_', schema)).toEqual({ department: null })
   })
-
-  it('decodes 0 as 0', () => {
-    const numSchema: VigesimalSchema = {
-      name: 'N1',
-      fields: [{ name: 'count', type: 'numeric' }],
-    }
-    expect(verifier.decode('N1[0]', numSchema)).toEqual({ count: 0 })
+  it('decodes empty delta', () => {
+    expect(decodeDelta('~', schema)).toEqual({})
+  })
+  it('handles quoted values with commas', () => {
+    expect(decodeDelta('~msg="a,b"', schema)).toEqual({ msg: 'a,b' })
   })
 })
 
-describe('VigesimalVerifier.verify()', () => {
-  const verifier = new VigesimalVerifier()
-
-  it('returns valid=true for a correctly encoded tuple', () => {
-    const original = { tier: 'prem', step: '3/7', active: true }
-    const encoded = 'S1[prem|3/7|+]'
-    const result = verifier.verify(encoded, original, schema)
+describe('VigesimalVerifier', () => {
+  it('verifies a faithful encoding', () => {
+    const encoded = encodeTabular('employees', records, schema)
+    const result = new VigesimalVerifier().verify(encoded, records, schema)
     expect(result.valid).toBe(true)
-    expect(result.errors).toHaveLength(0)
+    expect(result.errors).toEqual([])
   })
 
-  it('returns valid=false with error when encoding does not match', () => {
-    const original = { tier: 'prem', step: '3/7', active: true }
-    const wrongEncoded = 'S1[free|3/7|+]'  // tier is wrong
-    const result = verifier.verify(wrongEncoded, original, schema)
+  it('reports a corrupted encoding', () => {
+    const encoded = encodeTabular('employees', records, schema).replace('Engineering', 'Sales')
+    const result = new VigesimalVerifier().verify(encoded, records, schema)
     expect(result.valid).toBe(false)
     expect(result.errors.length).toBeGreaterThan(0)
   })
