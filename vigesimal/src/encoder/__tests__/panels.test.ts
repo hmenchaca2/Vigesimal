@@ -28,6 +28,7 @@ describe('encodeHeader', () => {
       'codes: D1=Engineering',
       LEGEND,
       '',
+      '',
     ])
   })
 

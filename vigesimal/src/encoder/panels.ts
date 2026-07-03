@@ -23,6 +23,9 @@ export function encodeHeader(
     lines.push('codes: ' + pairs.join(' '))
   }
   lines.push(LEGEND)
+  // Blank line separates header from data rows (canonical wire format,
+  // matches the benchmarked Python reference encoder)
+  lines.push('')
   lines.push('')
   return lines.join('\n')
 }
