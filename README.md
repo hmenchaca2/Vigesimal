@@ -46,6 +46,22 @@ The same principles drive this format:
 
 *claude-haiku-4-5, 179 questions × 6 datasets. Reproduce with `benchmark/` (needs `ANTHROPIC_API_KEY`, costs ~$0.10 per encoder).*
 
+## Use cases
+
+**Agent state across turns.** An agent loop that re-injects its full state every turn (user tier, workflow step, tool results, flags) pays for the same tokens dozens of times. Encode the state once as a vigesimal block, then send only `~step=3/5,~status=ok` deltas — the `DeltaTracker` re-baselines automatically when the state churns too much.
+
+**Tool output compression.** Database queries, API responses, and search results arrive as verbose JSON arrays. A 50-row query result that costs ~6,400 tokens pretty-printed fits in ~2,000 as a vigesimal block — and the model answers retrieval questions over it *more* accurately.
+
+**RAG over structured data.** When retrieved chunks are tabular (product catalogs, order histories, log excerpts), encoding them vigesimal instead of JSON lets you fit roughly 2.5× more records into the same context budget.
+
+**Long-running conversations with context limits.** Summarize-and-compress checkpoints: encode accumulated session facts as a block, verify the round-trip with `VigesimalVerifier`, and drop the verbose originals from context.
+
+**Multi-agent handoffs.** When one agent passes structured findings to another, the handoff payload is pure token overhead. A compact, self-describing block (header + legend travel with the data) means the receiving agent needs no side-channel schema.
+
+**Batch classification/extraction pipelines.** Sending hundreds of records per prompt for labeling? Token savings scale linearly with volume — at Sonnet input prices, a 60% reduction on a 10M-token/day pipeline is real money.
+
+**When *not* to use it:** deeply nested or heterogeneous JSON (the format is optimized for flat, repeated records), one-off tiny payloads (the header overhead outweighs savings below ~3 rows), and aggregation-heavy tasks (models are bad at arithmetic over *any* serialization — ours included; do the math in code and send results).
+
 ## Installation
 
 ```bash
