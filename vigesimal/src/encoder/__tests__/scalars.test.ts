@@ -1,87 +1,42 @@
 import { describe, it, expect } from 'vitest'
-import { encodeScalar, decodeScalar, escapeString, unescapeString } from '../scalars'
-
-describe('escapeString', () => {
-  it('escapes pipe characters', () => {
-    expect(escapeString('a|b')).toBe('a\\|b')
-  })
-  it('escapes open bracket', () => {
-    expect(escapeString('a[b')).toBe('a\\[b')
-  })
-  it('escapes close bracket', () => {
-    expect(escapeString('a]b')).toBe('a\\]b')
-  })
-  it('escapes multiple special chars', () => {
-    expect(escapeString('[a|b]')).toBe('\\[a\\|b\\]')
-  })
-  it('leaves plain strings untouched', () => {
-    expect(escapeString('hello')).toBe('hello')
-  })
-})
-
-describe('unescapeString', () => {
-  it('unescapes pipe', () => {
-    expect(unescapeString('a\\|b')).toBe('a|b')
-  })
-  it('unescapes brackets', () => {
-    expect(unescapeString('\\[a\\]')).toBe('[a]')
-  })
-  it('round-trips with escapeString', () => {
-    const s = 'user[role|admin]'
-    expect(unescapeString(escapeString(s))).toBe(s)
-  })
-})
+import { encodeScalar, decodeScalar, quoteCsv, splitCsvRow } from '../scalars'
 
 describe('encodeScalar', () => {
-  it('encodes null as _', () => {
-    expect(encodeScalar(null)).toBe('_')
-  })
-  it('encodes undefined as _', () => {
-    expect(encodeScalar(undefined)).toBe('_')
-  })
-  it('encodes true as +', () => {
-    expect(encodeScalar(true)).toBe('+')
-  })
-  it('encodes false as -', () => {
-    expect(encodeScalar(false)).toBe('-')
-  })
-  it('encodes numeric zero as 0', () => {
-    expect(encodeScalar(0)).toBe('0')
-  })
-  it('encodes positive number as string', () => {
-    expect(encodeScalar(42)).toBe('42')
-  })
-  it('encodes negative number as string', () => {
-    expect(encodeScalar(-3)).toBe('-3')
-  })
-  it('encodes plain string as-is', () => {
-    expect(encodeScalar('hello')).toBe('hello')
-  })
-  it('escapes special chars in strings', () => {
-    expect(encodeScalar('a|b')).toBe('a\\|b')
-  })
+  it('encodes true as 1', () => expect(encodeScalar(true)).toBe('1'))
+  it('encodes false as 0', () => expect(encodeScalar(false)).toBe('0'))
+  it('encodes null as _', () => expect(encodeScalar(null)).toBe('_'))
+  it('encodes undefined as _', () => expect(encodeScalar(undefined)).toBe('_'))
+  it('encodes numbers literally', () => expect(encodeScalar(42)).toBe('42'))
+  it('encodes zero as 0', () => expect(encodeScalar(0)).toBe('0'))
+  it('encodes plain strings literally', () => expect(encodeScalar('hello')).toBe('hello'))
+  it('quotes strings containing commas', () => expect(encodeScalar('a,b')).toBe('"a,b"'))
+  it('quotes and doubles internal quotes', () =>
+    expect(encodeScalar('say "hi"')).toBe('"say ""hi"""'))
+  it('quotes strings containing newlines', () => expect(encodeScalar('a\nb')).toBe('"a\nb"'))
+  it('leaves empty string empty', () => expect(encodeScalar('')).toBe(''))
 })
 
 describe('decodeScalar', () => {
-  it('decodes _ as null', () => {
-    expect(decodeScalar('_')).toBeNull()
-  })
-  it('decodes + as true', () => {
-    expect(decodeScalar('+')).toBe(true)
-  })
-  it('decodes - as false', () => {
-    expect(decodeScalar('-')).toBe(false)
-  })
-  it('decodes 0 as 0', () => {
-    expect(decodeScalar('0')).toBe(0)
-  })
-  it('decodes other strings by unescaping', () => {
-    expect(decodeScalar('hello')).toBe('hello')
-  })
-  it('decodes escaped pipe back to string with pipe', () => {
-    expect(decodeScalar('a\\|b')).toBe('a|b')
-  })
-  it('round-trips with encodeScalar for strings', () => {
-    expect(decodeScalar(encodeScalar('hello|world'))).toBe('hello|world')
-  })
+  it('decodes _ as null', () => expect(decodeScalar('_', 'string')).toBeNull())
+  it('decodes 1 as true for boolean fields', () => expect(decodeScalar('1', 'boolean')).toBe(true))
+  it('decodes 0 as false for boolean fields', () => expect(decodeScalar('0', 'boolean')).toBe(false))
+  it('decodes numerics as numbers', () => expect(decodeScalar('42', 'numeric')).toBe(42))
+  it('decodes 0 as number 0 for numeric fields', () => expect(decodeScalar('0', 'numeric')).toBe(0))
+  it('decodes strings as-is', () => expect(decodeScalar('hello', 'string')).toBe('hello'))
+  it('unquotes quoted strings', () => expect(decodeScalar('"a,b"', 'string')).toBe('a,b'))
+  it('undoubles quotes', () => expect(decodeScalar('"say ""hi"""', 'string')).toBe('say "hi"'))
+  it('round-trips a comma string', () =>
+    expect(decodeScalar(encodeScalar('x,y'), 'string')).toBe('x,y'))
+})
+
+describe('splitCsvRow', () => {
+  it('splits plain rows', () => expect(splitCsvRow('a,b,c')).toEqual(['a', 'b', 'c']))
+  it('respects quoted commas', () => expect(splitCsvRow('a,"b,c",d')).toEqual(['a', '"b,c"', 'd']))
+  it('handles doubled quotes inside quoted fields', () =>
+    expect(splitCsvRow('"say ""hi""",x')).toEqual(['"say ""hi"""', 'x']))
+  it('handles empty fields', () => expect(splitCsvRow('a,,c')).toEqual(['a', '', 'c']))
+})
+
+describe('quoteCsv', () => {
+  it('wraps and doubles quotes', () => expect(quoteCsv('a"b')).toBe('"a""b"'))
 })
