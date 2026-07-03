@@ -61,11 +61,15 @@ def _field_letters(fields: list[str]) -> dict[str, str]:
 
 
 def _build_codes(
-    fields: list[str], records: list[dict]
+    fields: list[str], records: list[dict], est=_est_tokens
 ) -> dict[str, dict[str, str]]:
     """Per-field value->code maps. A value is coded only when it pays for itself:
-    occurrences * (est(value) - 1) > est(value) + 2   (declaration cost)
+    occurrences * (est(value) - est(code)) > est(declaration)
+
+    `est` maps a string to its token count; defaults to the chars/4 estimate.
+    Pass a real-tokenizer-backed function for exact payoff decisions.
     """
+    code_cost = est("X1")  # all codes are letter+digit; cost is uniform
     # First pass: find qualifying values per field
     qualifying: dict[str, list[tuple[str, int]]] = {}
     for field in fields:
@@ -75,11 +79,11 @@ def _build_codes(
         )
         payers = [
             (value, occ) for value, occ in counts.items()
-            if occ * (_est_tokens(value) - 1) > _est_tokens(value) + 2
+            if occ * (est(value) - code_cost) > est(f" X1={_codes_value(value)}")
         ]
         if payers:
             # Highest payoff first; cap at 19 codes
-            payers.sort(key=lambda p: p[1] * (_est_tokens(p[0]) - 1), reverse=True)
+            payers.sort(key=lambda p: p[1] * (est(p[0]) - code_cost), reverse=True)
             qualifying[field] = payers[:19]
 
     letters = _field_letters(list(qualifying.keys()))
@@ -123,10 +127,33 @@ def _flatten_dict(d: dict, prefix: str = "") -> list[tuple[str, object]]:
 class VigesimalV4Encoder(Encoder):
     name = "vigesimal_v4"
 
+    def __init__(self, token_counter=None) -> None:
+        """token_counter: optional TokenCounter-like object with count_batch().
+        When provided, code payoff decisions use real token counts instead of
+        the chars/4 estimate."""
+        self._token_counter = token_counter
+
     def encode(self, dataset_name: str, data: list | dict) -> str:
         if isinstance(data, list):
             return self._encode_tabular(dataset_name, data)
         return self._encode_config(dataset_name, data)
+
+    def _make_est(self, fields: list[str], records: list):
+        """Payoff estimator: real token counts (one batch call) when a counter
+        is configured, else the chars/4 estimate."""
+        if self._token_counter is None:
+            return _est_tokens
+        texts = {"X1"}
+        for field in fields:
+            for r in records:
+                v = r.get(field)
+                if isinstance(v, str):
+                    texts.add(v)
+                    texts.add(f" X1={_codes_value(v)}")
+        ordered = list(texts)
+        counts = self._token_counter.count_batch(ordered)
+        table = dict(zip(ordered, counts))
+        return lambda s: table.get(s, _est_tokens(s))
 
     def _encode_tabular(self, name: str, records: list) -> str:
         if not records:
@@ -139,7 +166,7 @@ class VigesimalV4Encoder(Encoder):
                 if k not in fields:
                     fields.append(k)
 
-        codes = _build_codes(fields, records)
+        codes = _build_codes(fields, records, est=self._make_est(fields, records))
 
         lines = [
             f"## VIG4 {name}: {len(records)} rows",

@@ -186,3 +186,38 @@ class TestEncoderConfig:
         assert "database.port: 5432" in lines
         assert "features.dark_mode: 1" in lines
         assert "version: 2.1" in lines
+
+
+class TestRealTokenPayoff:
+    def test_custom_est_makes_nothing_pay_off(self):
+        # an est that says every string is 1 token -> no code ever saves anything
+        codes = _build_codes(
+            ["department"], [{"department": "Engineering"}] * 50, est=lambda s: 1
+        )
+        assert codes == {}
+
+    def test_custom_est_keeps_profitable_codes(self):
+        # value worth 10 tokens, code worth 1, declaration worth 12:
+        # 3 occurrences save 3*(10-1)=27 > 12 -> coded
+        def est(s):
+            if s == "Engineering":
+                return 10
+            return 1 if len(s) < 4 else 12
+        codes = _build_codes(
+            ["department"], [{"department": "Engineering"}] * 3, est=est
+        )
+        assert codes == {"department": {"Engineering": "D1"}}
+
+    def test_encoder_with_token_counter_disables_unprofitable_codes(self):
+        class FakeCounter:
+            def count_batch(self, texts):
+                return [1] * len(texts)  # everything 1 token -> no savings possible
+
+        records = [{"department": "Engineering"} for _ in range(10)]
+        out = VigesimalV4Encoder(token_counter=FakeCounter()).encode("x", records)
+        assert "codes:" not in out
+
+    def test_encoder_without_counter_unchanged(self):
+        records = [{"department": "Engineering"} for _ in range(10)]
+        out = VigesimalV4Encoder().encode("x", records)
+        assert "codes: D1=Engineering" in out
