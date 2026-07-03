@@ -1,3 +1,5 @@
+export { encode, decode } from './api'
+export type { EncodeOptions } from './api'
 export { VigesimalVerifier } from './verify/VigesimalVerifier'
 export { AdaptiveCompressor } from './adaptive/AdaptiveCompressor'
 export { DeltaTracker } from './delta/DeltaTracker'
@@ -18,3 +20,4 @@ export type {
   DeltaTrackerConfig, DeltaResult, CompressStats, CompressResult,
   CompressorSession, VerifyResult,
 } from './types'
+
