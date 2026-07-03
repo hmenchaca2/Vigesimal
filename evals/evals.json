@@ -1,0 +1,42 @@
+{
+  "skill_name": "vigesimal-compression",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm building a customer onboarding chatbot that reinjects user state every turn. Right now my system prompt includes this blurb every message:\n\n\"The user is a free-tier subscriber at step 2 of 5 in the onboarding flow. Their preferred language is English. Available tools: search, summarize. Current status: ok. Current intent: complete profile.\"\n\nThat's 38 tokens per turn and I have thousands of daily users. Please compress this state using vigesimal notation. Give me the codex block to add to my system prompt and the compressed form to use each turn.",
+      "expected_output": "A Panel-A codex block plus a compressed S1 tuple that's significantly shorter than the original 38 tokens. Should define schema, domain values, and give a before/after with token counts.",
+      "files": [],
+      "assertions": [
+        "Output includes a codex block with GRAMMAR v3 or equivalent schema definition",
+        "Output shows a compressed tuple form (using ⟨ ⟩ delimiters and · separators)",
+        "Output includes a before/after token count comparison showing reduction",
+        "Output includes domain declarations for tier, step, lang, tools, status, and intent fields"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I have an agent that calls a search tool and gets back results like this every turn:\n\n```json\n{\n  \"tool\": \"web_search\",\n  \"status\": \"success\",\n  \"results\": 5,\n  \"latency_ms\": 342,\n  \"cached\": false\n}\n```\n\nThis JSON gets appended to the context every single turn. I'm running 10,000 requests per day. How do I compress this tool output using vigesimal? Give me the compressed form and the codex definition to include in my system prompt.",
+      "expected_output": "A T1 tuple compressed form using the tool output schema from the codex (T1⟨tool·status·results·latency·cached⟩), plus the codex definition. Should show significant token reduction from the JSON.",
+      "files": [],
+      "assertions": [
+        "Output produces a compressed tuple using T1 or equivalent tool-output schema",
+        "Output shows the JSON original vs compressed form with token counts",
+        "Compressed form correctly encodes: tool name, success/fail status, result count, latency, and cached boolean",
+        "Output specifies what Panel(s) are needed (should be Panel-A only for this simple case)"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I'm running a 20-turn support agent. Each turn I reinject the full user profile:\n\n- Plan: enterprise\n- Progress: step 4 of 8\n- Language: Spanish\n- Tools enabled: search, database, API\n- Status: ok\n- Intent: troubleshoot\n\nI also have 5 support tickets in the session:\nTicket 101: open, billing, high\nTicket 102: closed, technical, low\nTicket 103: open, technical, medium\nTicket 104: in-progress, billing, medium\nTicket 105: open, feature, high\n\nHelp me design a full vigesimal compression scheme for this session. I need: which panels to load, the codex block, compressed state for the user profile, tabular form for the tickets, and delta form recommendations for how state evolves across turns.",
+      "expected_output": "Comprehensive compression scheme using Panel-A+B+C: codex block with S1 (user state) and ticket schema, tabular form for 5 tickets, delta recommendation with reset threshold calculation, and dual-surface suggestion for any detail fields.",
+      "files": [],
+      "assertions": [
+        "Output selects Panel-A + Panel-B + Panel-C (correct for 20-turn session with tabular data)",
+        "Output provides a tabular compressed form for all 5 tickets",
+        "Output includes delta form guidance with a reset threshold (should be calculated using floor(18/avg_fields_per_turn))",
+        "Output includes a complete codex block with all needed panel definitions",
+        "Output shows the user profile in compressed S1 tuple form"
+      ]
+    }
+  ]
+}

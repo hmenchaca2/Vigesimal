@@ -1,0 +1,482 @@
+[
+  {
+    "date": "2024-03-01",
+    "page_views": 10308,
+    "clicks": 529,
+    "conversions": 38,
+    "revenue": 2591.78,
+    "bounce_rate": 0.5864
+  },
+  {
+    "date": "2024-03-02",
+    "page_views": 10344,
+    "clicks": 1121,
+    "conversions": 114,
+    "revenue": 13033.36,
+    "bounce_rate": 0.3042
+  },
+  {
+    "date": "2024-03-03",
+    "page_views": 10322,
+    "clicks": 1002,
+    "conversions": 82,
+    "revenue": 9397.29,
+    "bounce_rate": 0.414
+  },
+  {
+    "date": "2024-03-04",
+    "page_views": 11071,
+    "clicks": 798,
+    "conversions": 21,
+    "revenue": 2168.59,
+    "bounce_rate": 0.7047
+  },
+  {
+    "date": "2024-03-05",
+    "page_views": 11189,
+    "clicks": 1285,
+    "conversions": 40,
+    "revenue": 1172.32,
+    "bounce_rate": 0.2686
+  },
+  {
+    "date": "2024-03-06",
+    "page_views": 11697,
+    "clicks": 720,
+    "conversions": 31,
+    "revenue": 2358.07,
+    "bounce_rate": 0.4443
+  },
+  {
+    "date": "2024-03-07",
+    "page_views": 11956,
+    "clicks": 1399,
+    "conversions": 131,
+    "revenue": 15047.65,
+    "bounce_rate": 0.4596
+  },
+  {
+    "date": "2024-03-08",
+    "page_views": 11772,
+    "clicks": 1630,
+    "conversions": 139,
+    "revenue": 14483.92,
+    "bounce_rate": 0.5578
+  },
+  {
+    "date": "2024-03-09",
+    "page_views": 11844,
+    "clicks": 630,
+    "conversions": 35,
+    "revenue": 2349.25,
+    "bounce_rate": 0.7253
+  },
+  {
+    "date": "2024-03-10",
+    "page_views": 12086,
+    "clicks": 724,
+    "conversions": 64,
+    "revenue": 4910.35,
+    "bounce_rate": 0.7389
+  },
+  {
+    "date": "2024-03-11",
+    "page_views": 12320,
+    "clicks": 690,
+    "conversions": 32,
+    "revenue": 3743.35,
+    "bounce_rate": 0.7245
+  },
+  {
+    "date": "2024-03-12",
+    "page_views": 12751,
+    "clicks": 754,
+    "conversions": 31,
+    "revenue": 2658.31,
+    "bounce_rate": 0.7355
+  },
+  {
+    "date": "2024-03-13",
+    "page_views": 12354,
+    "clicks": 1589,
+    "conversions": 70,
+    "revenue": 2587.39,
+    "bounce_rate": 0.5323
+  },
+  {
+    "date": "2024-03-14",
+    "page_views": 11994,
+    "clicks": 1594,
+    "conversions": 120,
+    "revenue": 9684.77,
+    "bounce_rate": 0.6565
+  },
+  {
+    "date": "2024-03-15",
+    "page_views": 11971,
+    "clicks": 991,
+    "conversions": 34,
+    "revenue": 3758.72,
+    "bounce_rate": 0.2514
+  },
+  {
+    "date": "2024-03-16",
+    "page_views": 11767,
+    "clicks": 1750,
+    "conversions": 129,
+    "revenue": 13010.79,
+    "bounce_rate": 0.305
+  },
+  {
+    "date": "2024-03-17",
+    "page_views": 11319,
+    "clicks": 715,
+    "conversions": 39,
+    "revenue": 3896.14,
+    "bounce_rate": 0.5444
+  },
+  {
+    "date": "2024-03-18",
+    "page_views": 10851,
+    "clicks": 731,
+    "conversions": 18,
+    "revenue": 1718.34,
+    "bounce_rate": 0.513
+  },
+  {
+    "date": "2024-03-19",
+    "page_views": 10481,
+    "clicks": 1023,
+    "conversions": 100,
+    "revenue": 7375.76,
+    "bounce_rate": 0.3045
+  },
+  {
+    "date": "2024-03-20",
+    "page_views": 11012,
+    "clicks": 794,
+    "conversions": 64,
+    "revenue": 6021.64,
+    "bounce_rate": 0.7044
+  },
+  {
+    "date": "2024-03-21",
+    "page_views": 11579,
+    "clicks": 928,
+    "conversions": 78,
+    "revenue": 2180.83,
+    "bounce_rate": 0.7493
+  },
+  {
+    "date": "2024-03-22",
+    "page_views": 11901,
+    "clicks": 1102,
+    "conversions": 33,
+    "revenue": 3058.38,
+    "bounce_rate": 0.4718
+  },
+  {
+    "date": "2024-03-23",
+    "page_views": 11566,
+    "clicks": 950,
+    "conversions": 33,
+    "revenue": 1220.61,
+    "bounce_rate": 0.5622
+  },
+  {
+    "date": "2024-03-24",
+    "page_views": 12264,
+    "clicks": 1285,
+    "conversions": 67,
+    "revenue": 8005.81,
+    "bounce_rate": 0.5153
+  },
+  {
+    "date": "2024-03-25",
+    "page_views": 12693,
+    "clicks": 1276,
+    "conversions": 80,
+    "revenue": 8027.53,
+    "bounce_rate": 0.3072
+  },
+  {
+    "date": "2024-03-26",
+    "page_views": 13322,
+    "clicks": 1626,
+    "conversions": 67,
+    "revenue": 4549.15,
+    "bounce_rate": 0.3642
+  },
+  {
+    "date": "2024-03-27",
+    "page_views": 13516,
+    "clicks": 1794,
+    "conversions": 107,
+    "revenue": 10091.51,
+    "bounce_rate": 0.4063
+  },
+  {
+    "date": "2024-03-28",
+    "page_views": 13656,
+    "clicks": 1591,
+    "conversions": 91,
+    "revenue": 3594.56,
+    "bounce_rate": 0.7115
+  },
+  {
+    "date": "2024-03-29",
+    "page_views": 13293,
+    "clicks": 785,
+    "conversions": 22,
+    "revenue": 1452.62,
+    "bounce_rate": 0.6223
+  },
+  {
+    "date": "2024-03-30",
+    "page_views": 13556,
+    "clicks": 1778,
+    "conversions": 134,
+    "revenue": 10815.7,
+    "bounce_rate": 0.5308
+  },
+  {
+    "date": "2024-03-31",
+    "page_views": 13731,
+    "clicks": 1606,
+    "conversions": 98,
+    "revenue": 10583.28,
+    "bounce_rate": 0.7206
+  },
+  {
+    "date": "2024-04-01",
+    "page_views": 14097,
+    "clicks": 1928,
+    "conversions": 177,
+    "revenue": 20708.62,
+    "bounce_rate": 0.5502
+  },
+  {
+    "date": "2024-04-02",
+    "page_views": 14317,
+    "clicks": 864,
+    "conversions": 61,
+    "revenue": 2421.66,
+    "bounce_rate": 0.4911
+  },
+  {
+    "date": "2024-04-03",
+    "page_views": 14038,
+    "clicks": 1193,
+    "conversions": 90,
+    "revenue": 3232.27,
+    "bounce_rate": 0.3893
+  },
+  {
+    "date": "2024-04-04",
+    "page_views": 14001,
+    "clicks": 1830,
+    "conversions": 191,
+    "revenue": 22458.15,
+    "bounce_rate": 0.6592
+  },
+  {
+    "date": "2024-04-05",
+    "page_views": 14757,
+    "clicks": 1733,
+    "conversions": 131,
+    "revenue": 10853.94,
+    "bounce_rate": 0.5789
+  },
+  {
+    "date": "2024-04-06",
+    "page_views": 14804,
+    "clicks": 783,
+    "conversions": 37,
+    "revenue": 3604.87,
+    "bounce_rate": 0.7108
+  },
+  {
+    "date": "2024-04-07",
+    "page_views": 15022,
+    "clicks": 760,
+    "conversions": 81,
+    "revenue": 6382.84,
+    "bounce_rate": 0.4504
+  },
+  {
+    "date": "2024-04-08",
+    "page_views": 14812,
+    "clicks": 1838,
+    "conversions": 215,
+    "revenue": 7249.15,
+    "bounce_rate": 0.5152
+  },
+  {
+    "date": "2024-04-09",
+    "page_views": 15082,
+    "clicks": 1387,
+    "conversions": 75,
+    "revenue": 4511.63,
+    "bounce_rate": 0.6108
+  },
+  {
+    "date": "2024-04-10",
+    "page_views": 15744,
+    "clicks": 1725,
+    "conversions": 186,
+    "revenue": 7399.1,
+    "bounce_rate": 0.6272
+  },
+  {
+    "date": "2024-04-11",
+    "page_views": 15345,
+    "clicks": 1801,
+    "conversions": 85,
+    "revenue": 7470.15,
+    "bounce_rate": 0.4928
+  },
+  {
+    "date": "2024-04-12",
+    "page_views": 15750,
+    "clicks": 1439,
+    "conversions": 59,
+    "revenue": 4346.7,
+    "bounce_rate": 0.4226
+  },
+  {
+    "date": "2024-04-13",
+    "page_views": 15477,
+    "clicks": 1212,
+    "conversions": 106,
+    "revenue": 7550.39,
+    "bounce_rate": 0.5836
+  },
+  {
+    "date": "2024-04-14",
+    "page_views": 15070,
+    "clicks": 1085,
+    "conversions": 128,
+    "revenue": 3866.15,
+    "bounce_rate": 0.3522
+  },
+  {
+    "date": "2024-04-15",
+    "page_views": 15002,
+    "clicks": 1901,
+    "conversions": 183,
+    "revenue": 9607.04,
+    "bounce_rate": 0.31
+  },
+  {
+    "date": "2024-04-16",
+    "page_views": 15520,
+    "clicks": 1935,
+    "conversions": 72,
+    "revenue": 4400.62,
+    "bounce_rate": 0.6018
+  },
+  {
+    "date": "2024-04-17",
+    "page_views": 16044,
+    "clicks": 1698,
+    "conversions": 147,
+    "revenue": 8620.94,
+    "bounce_rate": 0.4485
+  },
+  {
+    "date": "2024-04-18",
+    "page_views": 15630,
+    "clicks": 1463,
+    "conversions": 96,
+    "revenue": 3110.11,
+    "bounce_rate": 0.4065
+  },
+  {
+    "date": "2024-04-19",
+    "page_views": 16009,
+    "clicks": 1718,
+    "conversions": 156,
+    "revenue": 10090.22,
+    "bounce_rate": 0.3076
+  },
+  {
+    "date": "2024-04-20",
+    "page_views": 15551,
+    "clicks": 2280,
+    "conversions": 84,
+    "revenue": 9661.96,
+    "bounce_rate": 0.48
+  },
+  {
+    "date": "2024-04-21",
+    "page_views": 15792,
+    "clicks": 928,
+    "conversions": 96,
+    "revenue": 4619.05,
+    "bounce_rate": 0.5444
+  },
+  {
+    "date": "2024-04-22",
+    "page_views": 16365,
+    "clicks": 946,
+    "conversions": 101,
+    "revenue": 9681.0,
+    "bounce_rate": 0.3608
+  },
+  {
+    "date": "2024-04-23",
+    "page_views": 16209,
+    "clicks": 934,
+    "conversions": 77,
+    "revenue": 5806.37,
+    "bounce_rate": 0.347
+  },
+  {
+    "date": "2024-04-24",
+    "page_views": 16424,
+    "clicks": 1397,
+    "conversions": 161,
+    "revenue": 13897.05,
+    "bounce_rate": 0.3238
+  },
+  {
+    "date": "2024-04-25",
+    "page_views": 16134,
+    "clicks": 1042,
+    "conversions": 41,
+    "revenue": 3371.34,
+    "bounce_rate": 0.6301
+  },
+  {
+    "date": "2024-04-26",
+    "page_views": 15788,
+    "clicks": 1069,
+    "conversions": 103,
+    "revenue": 7409.94,
+    "bounce_rate": 0.6272
+  },
+  {
+    "date": "2024-04-27",
+    "page_views": 16474,
+    "clicks": 1563,
+    "conversions": 175,
+    "revenue": 13759.68,
+    "bounce_rate": 0.5676
+  },
+  {
+    "date": "2024-04-28",
+    "page_views": 17253,
+    "clicks": 1420,
+    "conversions": 166,
+    "revenue": 9135.51,
+    "bounce_rate": 0.4699
+  },
+  {
+    "date": "2024-04-29",
+    "page_views": 17713,
+    "clicks": 1668,
+    "conversions": 83,
+    "revenue": 4240.8,
+    "bounce_rate": 0.2781
+  }
+]

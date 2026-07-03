@@ -1,0 +1,27 @@
+{
+  "database": {
+    "host": "db.internal.example.com",
+    "port": 5432,
+    "name": "app_production",
+    "pool_size": 20,
+    "ssl": true
+  },
+  "cache": {
+    "host": "redis.internal.example.com",
+    "port": 6379,
+    "ttl": 3600,
+    "max_size": 512
+  },
+  "api": {
+    "base_url": "https://api.example.com/v2",
+    "timeout": 30,
+    "retry_count": 3,
+    "rate_limit": 1000
+  },
+  "features": {
+    "enable_search": true,
+    "enable_analytics": false,
+    "enable_notifications": true,
+    "max_upload_mb": 50
+  }
+}

@@ -1,2 +1,10 @@
 node_modules/
 dist/
+.env
+
+# Claude Code / superpowers internals
+.superpowers/
+.claude/
+docs/superpowers/
+vigesimal-workspace/
+*.skill

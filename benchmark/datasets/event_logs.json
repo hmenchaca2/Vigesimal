@@ -1,0 +1,677 @@
+[
+  {
+    "event_id": "EVT-0001",
+    "timestamp": 1700000580,
+    "level": "INFO",
+    "service": "cache",
+    "message": "Cache populated: endpoint /users",
+    "duration_ms": 94,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0002",
+    "timestamp": 1700000915,
+    "level": "WARN",
+    "service": "cache",
+    "message": "Eviction count increasing",
+    "duration_ms": 2179,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0003",
+    "timestamp": 1700001333,
+    "level": "INFO",
+    "service": "auth",
+    "message": "Session refreshed",
+    "duration_ms": 1130,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0004",
+    "timestamp": 1700001556,
+    "level": "INFO",
+    "service": "api",
+    "message": "Middleware applied",
+    "duration_ms": 986,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0005",
+    "timestamp": 1700001797,
+    "level": "INFO",
+    "service": "api",
+    "message": "Request received for 120",
+    "duration_ms": 2449,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0006",
+    "timestamp": 1700001876,
+    "level": "WARN",
+    "service": "auth",
+    "message": "Token near expiry",
+    "duration_ms": 960,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0007",
+    "timestamp": 1700002458,
+    "level": "WARN",
+    "service": "auth",
+    "message": "Failed login attempt",
+    "duration_ms": 2064,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0008",
+    "timestamp": 1700002784,
+    "level": "WARN",
+    "service": "auth",
+    "message": "Unusual login location detected",
+    "duration_ms": 2366,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0009",
+    "timestamp": 1700003142,
+    "level": "INFO",
+    "service": "auth",
+    "message": "Token issued for user",
+    "duration_ms": 1694,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0010",
+    "timestamp": 1700003479,
+    "level": "INFO",
+    "service": "db",
+    "message": "Connection pool healthy",
+    "duration_ms": 2277,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0011",
+    "timestamp": 1700004016,
+    "level": "ERROR",
+    "service": "api",
+    "message": "Upstream timeout",
+    "duration_ms": 6937,
+    "success": false
+  },
+  {
+    "event_id": "EVT-0012",
+    "timestamp": 1700004583,
+    "level": "WARN",
+    "service": "db",
+    "message": "Connection pool near limit",
+    "duration_ms": 1229,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0013",
+    "timestamp": 1700004998,
+    "level": "WARN",
+    "service": "auth",
+    "message": "Token near expiry",
+    "duration_ms": 924,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0014",
+    "timestamp": 1700005335,
+    "level": "WARN",
+    "service": "auth",
+    "message": "Failed login attempt",
+    "duration_ms": 1707,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0015",
+    "timestamp": 1700005935,
+    "level": "INFO",
+    "service": "worker",
+    "message": "Job key:user:session completed",
+    "duration_ms": 833,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0016",
+    "timestamp": 1700006303,
+    "level": "ERROR",
+    "service": "api",
+    "message": "Request validation failed",
+    "duration_ms": 4887,
+    "success": false
+  },
+  {
+    "event_id": "EVT-0017",
+    "timestamp": 1700006528,
+    "level": "INFO",
+    "service": "api",
+    "message": "Request received for endpoint /users",
+    "duration_ms": 771,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0018",
+    "timestamp": 1700006780,
+    "level": "INFO",
+    "service": "cache",
+    "message": "Eviction policy applied",
+    "duration_ms": 63,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0019",
+    "timestamp": 1700007026,
+    "level": "ERROR",
+    "service": "auth",
+    "message": "Invalid token signature",
+    "duration_ms": 7991,
+    "success": false
+  },
+  {
+    "event_id": "EVT-0020",
+    "timestamp": 1700007304,
+    "level": "WARN",
+    "service": "worker",
+    "message": "Queue depth elevated",
+    "duration_ms": 2262,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0021",
+    "timestamp": 1700007663,
+    "level": "INFO",
+    "service": "db",
+    "message": "Migration applied",
+    "duration_ms": 1072,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0022",
+    "timestamp": 1700008061,
+    "level": "ERROR",
+    "service": "worker",
+    "message": "Worker crash detected",
+    "duration_ms": 7076,
+    "success": false
+  },
+  {
+    "event_id": "EVT-0023",
+    "timestamp": 1700008571,
+    "level": "ERROR",
+    "service": "db",
+    "message": "Connection pool exhausted",
+    "duration_ms": 3890,
+    "success": false
+  },
+  {
+    "event_id": "EVT-0024",
+    "timestamp": 1700008647,
+    "level": "ERROR",
+    "service": "worker",
+    "message": "Dead letter queue overflow",
+    "duration_ms": 632,
+    "success": false
+  },
+  {
+    "event_id": "EVT-0025",
+    "timestamp": 1700008944,
+    "level": "ERROR",
+    "service": "worker",
+    "message": "Dead letter queue overflow",
+    "duration_ms": 2918,
+    "success": false
+  },
+  {
+    "event_id": "EVT-0026",
+    "timestamp": 1700009130,
+    "level": "INFO",
+    "service": "auth",
+    "message": "User logout recorded",
+    "duration_ms": 2046,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0027",
+    "timestamp": 1700009723,
+    "level": "INFO",
+    "service": "db",
+    "message": "Index rebuilt",
+    "duration_ms": 1888,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0028",
+    "timestamp": 1700009925,
+    "level": "INFO",
+    "service": "db",
+    "message": "Index rebuilt",
+    "duration_ms": 2221,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0029",
+    "timestamp": 1700010015,
+    "level": "INFO",
+    "service": "worker",
+    "message": "Job endpoint /users started",
+    "duration_ms": 27,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0030",
+    "timestamp": 1700010467,
+    "level": "WARN",
+    "service": "auth",
+    "message": "Failed login attempt",
+    "duration_ms": 2897,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0031",
+    "timestamp": 1700010651,
+    "level": "INFO",
+    "service": "api",
+    "message": "Middleware applied",
+    "duration_ms": 248,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0032",
+    "timestamp": 1700011175,
+    "level": "INFO",
+    "service": "cache",
+    "message": "TTL reset",
+    "duration_ms": 69,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0033",
+    "timestamp": 1700011747,
+    "level": "INFO",
+    "service": "db",
+    "message": "Migration applied",
+    "duration_ms": 2058,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0034",
+    "timestamp": 1700012217,
+    "level": "INFO",
+    "service": "auth",
+    "message": "User login successful",
+    "duration_ms": 988,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0035",
+    "timestamp": 1700012443,
+    "level": "INFO",
+    "service": "worker",
+    "message": "Queue depth: key:user:session",
+    "duration_ms": 1626,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0036",
+    "timestamp": 1700012553,
+    "level": "ERROR",
+    "service": "db",
+    "message": "Connection pool exhausted",
+    "duration_ms": 6211,
+    "success": false
+  },
+  {
+    "event_id": "EVT-0037",
+    "timestamp": 1700012814,
+    "level": "WARN",
+    "service": "db",
+    "message": "Query took endpoint /usersms \u2014 consider optimizing",
+    "duration_ms": 383,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0038",
+    "timestamp": 1700013259,
+    "level": "INFO",
+    "service": "cache",
+    "message": "TTL reset",
+    "duration_ms": 2609,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0039",
+    "timestamp": 1700013298,
+    "level": "INFO",
+    "service": "auth",
+    "message": "User logout recorded",
+    "duration_ms": 2318,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0040",
+    "timestamp": 1700013425,
+    "level": "ERROR",
+    "service": "worker",
+    "message": "Job job-42 failed after max retries",
+    "duration_ms": 7883,
+    "success": false
+  },
+  {
+    "event_id": "EVT-0041",
+    "timestamp": 1700013941,
+    "level": "INFO",
+    "service": "db",
+    "message": "Query executed in key:user:sessionms",
+    "duration_ms": 2225,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0042",
+    "timestamp": 1700014004,
+    "level": "ERROR",
+    "service": "auth",
+    "message": "Session store unavailable",
+    "duration_ms": 2197,
+    "success": false
+  },
+  {
+    "event_id": "EVT-0043",
+    "timestamp": 1700014181,
+    "level": "ERROR",
+    "service": "cache",
+    "message": "Serialization error",
+    "duration_ms": 5119,
+    "success": false
+  },
+  {
+    "event_id": "EVT-0044",
+    "timestamp": 1700014457,
+    "level": "WARN",
+    "service": "worker",
+    "message": "Queue depth elevated",
+    "duration_ms": 1573,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0045",
+    "timestamp": 1700014630,
+    "level": "INFO",
+    "service": "api",
+    "message": "Route matched: endpoint /users",
+    "duration_ms": 401,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0046",
+    "timestamp": 1700015107,
+    "level": "WARN",
+    "service": "auth",
+    "message": "Token near expiry",
+    "duration_ms": 1337,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0047",
+    "timestamp": 1700015167,
+    "level": "WARN",
+    "service": "db",
+    "message": "Connection pool near limit",
+    "duration_ms": 935,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0048",
+    "timestamp": 1700015561,
+    "level": "ERROR",
+    "service": "worker",
+    "message": "Worker crash detected",
+    "duration_ms": 6068,
+    "success": false
+  },
+  {
+    "event_id": "EVT-0049",
+    "timestamp": 1700015980,
+    "level": "WARN",
+    "service": "api",
+    "message": "Rate limit approaching for client",
+    "duration_ms": 2921,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0050",
+    "timestamp": 1700016085,
+    "level": "INFO",
+    "service": "api",
+    "message": "Middleware applied",
+    "duration_ms": 1596,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0051",
+    "timestamp": 1700016439,
+    "level": "INFO",
+    "service": "db",
+    "message": "Query executed in key:user:sessionms",
+    "duration_ms": 1822,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0052",
+    "timestamp": 1700016837,
+    "level": "INFO",
+    "service": "db",
+    "message": "Query executed in job-42ms",
+    "duration_ms": 1766,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0053",
+    "timestamp": 1700017326,
+    "level": "INFO",
+    "service": "worker",
+    "message": "Worker heartbeat OK",
+    "duration_ms": 108,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0054",
+    "timestamp": 1700017447,
+    "level": "INFO",
+    "service": "db",
+    "message": "Migration applied",
+    "duration_ms": 51,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0055",
+    "timestamp": 1700017775,
+    "level": "INFO",
+    "service": "cache",
+    "message": "Cache hit: job-42",
+    "duration_ms": 2343,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0056",
+    "timestamp": 1700018338,
+    "level": "WARN",
+    "service": "auth",
+    "message": "Failed login attempt",
+    "duration_ms": 1102,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0057",
+    "timestamp": 1700018676,
+    "level": "INFO",
+    "service": "db",
+    "message": "Query executed in job-42ms",
+    "duration_ms": 1781,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0058",
+    "timestamp": 1700018988,
+    "level": "INFO",
+    "service": "cache",
+    "message": "Cache hit: key:user:session",
+    "duration_ms": 1031,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0059",
+    "timestamp": 1700019270,
+    "level": "INFO",
+    "service": "cache",
+    "message": "Cache populated: 120",
+    "duration_ms": 439,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0060",
+    "timestamp": 1700019438,
+    "level": "INFO",
+    "service": "db",
+    "message": "Index rebuilt",
+    "duration_ms": 2541,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0061",
+    "timestamp": 1700019857,
+    "level": "INFO",
+    "service": "db",
+    "message": "Index rebuilt",
+    "duration_ms": 1231,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0062",
+    "timestamp": 1700020215,
+    "level": "ERROR",
+    "service": "worker",
+    "message": "Job 120 failed after max retries",
+    "duration_ms": 3073,
+    "success": false
+  },
+  {
+    "event_id": "EVT-0063",
+    "timestamp": 1700020426,
+    "level": "ERROR",
+    "service": "cache",
+    "message": "Serialization error",
+    "duration_ms": 5217,
+    "success": false
+  },
+  {
+    "event_id": "EVT-0064",
+    "timestamp": 1700020704,
+    "level": "INFO",
+    "service": "db",
+    "message": "Index rebuilt",
+    "duration_ms": 467,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0065",
+    "timestamp": 1700020938,
+    "level": "ERROR",
+    "service": "worker",
+    "message": "Job endpoint /users failed after max retries",
+    "duration_ms": 6457,
+    "success": false
+  },
+  {
+    "event_id": "EVT-0066",
+    "timestamp": 1700021440,
+    "level": "INFO",
+    "service": "auth",
+    "message": "Session refreshed",
+    "duration_ms": 1676,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0067",
+    "timestamp": 1700021981,
+    "level": "WARN",
+    "service": "auth",
+    "message": "Failed login attempt",
+    "duration_ms": 2698,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0068",
+    "timestamp": 1700022168,
+    "level": "WARN",
+    "service": "cache",
+    "message": "Cache miss rate elevated",
+    "duration_ms": 2450,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0069",
+    "timestamp": 1700022688,
+    "level": "INFO",
+    "service": "worker",
+    "message": "Worker heartbeat OK",
+    "duration_ms": 1473,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0070",
+    "timestamp": 1700023267,
+    "level": "WARN",
+    "service": "worker",
+    "message": "Job retry #endpoint /users",
+    "duration_ms": 1017,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0071",
+    "timestamp": 1700023660,
+    "level": "WARN",
+    "service": "auth",
+    "message": "Failed login attempt",
+    "duration_ms": 1359,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0072",
+    "timestamp": 1700024130,
+    "level": "INFO",
+    "service": "api",
+    "message": "Route matched: job-42",
+    "duration_ms": 2092,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0073",
+    "timestamp": 1700024691,
+    "level": "INFO",
+    "service": "worker",
+    "message": "Job 120 completed",
+    "duration_ms": 1533,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0074",
+    "timestamp": 1700025121,
+    "level": "WARN",
+    "service": "cache",
+    "message": "Eviction count increasing",
+    "duration_ms": 1413,
+    "success": true
+  },
+  {
+    "event_id": "EVT-0075",
+    "timestamp": 1700025176,
+    "level": "INFO",
+    "service": "cache",
+    "message": "TTL reset",
+    "duration_ms": 476,
+    "success": true
+  }
+]
