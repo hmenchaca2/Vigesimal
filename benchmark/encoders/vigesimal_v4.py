@@ -67,9 +67,11 @@ def _build_codes(
     occurrences * (est(value) - est(code)) > est(declaration)
 
     `est` maps a string to its token count; defaults to the chars/4 estimate.
-    Pass a real-tokenizer-backed function for exact payoff decisions.
+    Code and declaration costs are approximated with the fixed placeholder
+    "X1" — the real field letter is assigned after payoff decisions, so
+    per-letter tokenization differences are deliberately ignored.
     """
-    code_cost = est("X1")  # all codes are letter+digit; cost is uniform
+    code_cost = est("X1")  # placeholder; assumes letter choice doesn't change cost
     # First pass: find qualifying values per field
     qualifying: dict[str, list[tuple[str, int]]] = {}
     for field in fields:
@@ -153,7 +155,19 @@ class VigesimalV4Encoder(Encoder):
         ordered = list(texts)
         counts = self._token_counter.count_batch(ordered)
         table = dict(zip(ordered, counts))
-        return lambda s: table.get(s, _est_tokens(s))
+
+        def lookup(s: str) -> int:
+            # A miss means this enumeration is out of sync with what
+            # _build_codes queries — fail loudly rather than silently
+            # blending real counts with the chars/4 estimate.
+            if s not in table:
+                raise KeyError(
+                    f"token count missing for {s!r}: _make_est texts are out "
+                    "of sync with _build_codes queries"
+                )
+            return table[s]
+
+        return lookup
 
     def _encode_tabular(self, name: str, records: list) -> str:
         if not records:
