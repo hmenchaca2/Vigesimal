@@ -2,7 +2,7 @@ from __future__ import annotations
 """Vigesimal v4 encoder — CSV rows + payoff-gated dictionary codes.
 
 Header:
-    ## VIG4 <dataset>: <N> rows
+    ## <dataset>: <N> rows
     fields: f1,f2,f3
     codes: D1=Engineering D2=Marketing L1=NYC        (omitted when empty)
     bool: 1=yes 0=no  null: _
@@ -157,7 +157,7 @@ class VigesimalV4Encoder(Encoder):
 
     def _encode_tabular(self, name: str, records: list) -> str:
         if not records:
-            return f"## VIG4 {name}: 0 rows\n"
+            return f"## {name}: 0 rows\n"
 
         # Field union across all records, first-seen order
         fields: list[str] = []
@@ -169,7 +169,7 @@ class VigesimalV4Encoder(Encoder):
         codes = _build_codes(fields, records, est=self._make_est(fields, records))
 
         lines = [
-            f"## VIG4 {name}: {len(records)} rows",
+            f"## {name}: {len(records)} rows",
             f"fields: {','.join(fields)}",
         ]
         if codes:
@@ -202,7 +202,7 @@ class VigesimalV4Encoder(Encoder):
         return "\n".join(lines) + "\n"
 
     def _encode_config(self, name: str, cfg: dict) -> str:
-        lines = [f"## VIG4 {name}", _LEGEND, ""]
+        lines = [f"## {name}", _LEGEND, ""]
         for key, val in _flatten_dict(cfg):
             lines.append(f"{key}: {_v4_scalar(val)}")
         return "\n".join(lines) + "\n"

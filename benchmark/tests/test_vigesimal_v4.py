@@ -117,7 +117,7 @@ class TestEncoderTabular:
         ]
         out = self.enc.encode("employee_records", records)
         lines = out.splitlines()
-        assert lines[0] == "## VIG4 employee_records: 3 rows"
+        assert lines[0] == "## employee_records: 3 rows"
         assert lines[1] == "fields: id,department,active"
         assert lines[2] == "codes: D1=Engineering"
         assert lines[3] == "bool: 1=yes 0=no  null: _"
@@ -131,7 +131,7 @@ class TestEncoderTabular:
         out = self.enc.encode("tiny", records)
         assert "codes:" not in out
         lines = out.splitlines()
-        assert lines[0] == "## VIG4 tiny: 2 rows"
+        assert lines[0] == "## tiny: 2 rows"
         assert lines[1] == "fields: id,ok"
         assert lines[2] == "bool: 1=yes 0=no  null: _"
 
@@ -145,7 +145,7 @@ class TestEncoderTabular:
 
     def test_empty_dataset(self):
         out = self.enc.encode("empty", [])
-        assert out == "## VIG4 empty: 0 rows\n"
+        assert out == "## empty: 0 rows\n"
 
     def test_codes_line_quotes_multiword_values(self):
         records = [{"city": "New York City"} for _ in range(10)]
@@ -179,7 +179,7 @@ class TestEncoderConfig:
         }
         out = self.enc.encode("config", cfg)
         lines = out.splitlines()
-        assert lines[0] == "## VIG4 config"
+        assert lines[0] == "## config"
         assert lines[1] == "bool: 1=yes 0=no  null: _"
         assert lines[2] == ""
         assert "database.host: db.example.com" in lines
