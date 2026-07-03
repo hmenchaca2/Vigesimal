@@ -29,9 +29,9 @@ describe('inferSchema', () => {
     expect(s.fields.find(f => f.name === 'active')?.type).toBe('boolean')
   })
 
-  it('infers nullable type for fields with null values', () => {
+  it('infers the underlying type for fields with null values', () => {
     const s = inferSchema('S1', employees)
-    expect(s.fields.find(f => f.name === 'score')?.type).toBe('nullable')
+    expect(s.fields.find(f => f.name === 'score')?.type).toBe('numeric')
   })
 
   it('infers string type for string fields', () => {

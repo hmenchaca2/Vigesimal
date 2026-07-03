@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import type { VigesimalSchema } from '../../types'
 import { encodeTabular, encodeDelta } from '../../encoder/panels'
 import { decodeTabular, decodeDelta } from '../decode'
+import { inferSchema } from '../../schema/infer'
 import { VigesimalVerifier } from '../VigesimalVerifier'
 
 const schema: VigesimalSchema = {
@@ -83,5 +84,20 @@ describe('VigesimalVerifier', () => {
     const result = new VigesimalVerifier().verify(encoded, records, schema)
     expect(result.valid).toBe(false)
     expect(result.errors.length).toBeGreaterThan(0)
+  })
+})
+
+describe('inferred schema round-trip', () => {
+  it('numeric fields with nulls decode back as numbers and nulls', () => {
+    const data = [
+      { name: 'a', score: 42 },
+      { name: 'b', score: null },
+      { name: 'c', score: 7 },
+    ]
+    const s = inferSchema('scores', data)
+    const decoded = decodeTabular(encodeTabular('scores', data, s), s)
+    expect(decoded).toEqual(data)
+    expect(typeof decoded[0].score).toBe('number')
+    expect(decoded[1].score).toBeNull()
   })
 })

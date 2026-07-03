@@ -5,8 +5,10 @@ export enum Panel {
   C = 'C',
 }
 
-// Field type hint for schema inference
-export type FieldType = 'boolean' | 'numeric' | 'string' | 'nullable'
+// Field type hint for schema inference. Nulls are representable in any field
+// type (wire form "_"), so there is no separate nullable type — decode
+// dispatches purely on the field's value type.
+export type FieldType = 'boolean' | 'numeric' | 'string'
 
 // A single field in a schema
 export interface FieldDef {

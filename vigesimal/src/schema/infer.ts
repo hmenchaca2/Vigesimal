@@ -18,9 +18,9 @@ export function inferSchema(
     if (nonNull.every(v => typeof v === 'boolean')) {
       type = 'boolean'
     } else if (nonNull.every(v => typeof v === 'number')) {
-      type = hasNull ? 'nullable' : 'numeric'
+      type = 'numeric'
     } else {
-      type = hasNull ? 'nullable' : 'string'
+      type = 'string'
     }
 
     const uniqueEncoded = [...new Set(allValues.map(v => encodeScalar(v)))]
