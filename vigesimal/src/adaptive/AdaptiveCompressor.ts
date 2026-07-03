@@ -1,6 +1,6 @@
 import type { CompressResult, CompressorSession } from '../types'
 import { Panel } from '../types'
-import { VigesimalEncoder } from '../encoder/VigesimalEncoder'
+import { encodeTabular, encodeRow, encodeHeader, encodeDelta } from '../encoder/panels'
 import { DeltaTracker } from '../delta/DeltaTracker'
 import type { SchemaRegistry } from '../schema/SchemaRegistry'
 import { selectPanels } from './select'
@@ -18,18 +18,14 @@ function makeStats(original: string, compressed: string) {
 
 export class AdaptiveCompressor {
   private registry: SchemaRegistry
-  private encoder = new VigesimalEncoder()
 
   constructor(registry: SchemaRegistry) {
     this.registry = registry
   }
 
-  compress(
-    data: Record<string, unknown>,
-    schemaName: string
-  ): CompressResult {
+  compress(data: Record<string, unknown>, schemaName: string): CompressResult {
     const schema = this.registry.get(schemaName)
-    const output = this.encoder.encode(data, schema)
+    const output = encodeTabular(schemaName, [data], schema)
     return {
       output,
       panelsUsed: [Panel.A],
@@ -37,10 +33,7 @@ export class AdaptiveCompressor {
     }
   }
 
-  compressRecords(
-    rows: Record<string, unknown>[],
-    schemaName: string
-  ): CompressResult {
+  compressRecords(rows: Record<string, unknown>[], schemaName: string): CompressResult {
     const schema = this.registry.get(schemaName)
     const panels = selectPanels({
       isArray: true,
@@ -48,53 +41,31 @@ export class AdaptiveCompressor {
       sessionTurnCount: 0,
       shouldReset: false,
     })
-
-    const output = panels.includes(Panel.B)
-      ? this.encoder.encodeTabular(rows, schema)
-      : rows.map(r => this.encoder.encode(r, schema)).join('\n')
-
-    return {
-      output,
-      panelsUsed: panels,
-      stats: makeStats(JSON.stringify(rows), output),
-    }
+    const output = encodeTabular(schemaName, rows, schema)
+    return { output, panelsUsed: panels, stats: makeStats(JSON.stringify(rows), output) }
   }
 
   createSession(schemaName: string): CompressorSession {
     const schema = this.registry.get(schemaName)
     const tracker = new DeltaTracker()
-    const encoder = this.encoder
-    let turnCount = 0
 
     return {
       compress(state: Record<string, unknown>): CompressResult {
-        turnCount++
         const deltaResult = tracker.update(state)
-
         const panels = selectPanels({
           isArray: false,
           recordCount: 1,
-          sessionTurnCount: turnCount,
+          sessionTurnCount: tracker.getTurnCount(),
           shouldReset: deltaResult.type === 'reset',
         })
-
-        let output: string
-        if (deltaResult.type === 'reset') {
-          output = encoder.encode(state, schema)
-        } else {
-          output = encoder.encodeDelta(deltaResult.delta, schema)
-        }
-
-        return {
-          output,
-          panelsUsed: panels,
-          stats: makeStats(JSON.stringify(state), output),
-        }
+        const output =
+          deltaResult.type === 'reset'
+            ? encodeHeader(schemaName, 1, schema, new Map()) + encodeRow(state, schema, new Map()) + '\n'
+            : encodeDelta(deltaResult.delta)
+        return { output, panelsUsed: panels, stats: makeStats(JSON.stringify(state), output) }
       },
-
       reset(): void {
         tracker.reset()
-        turnCount = 0
       },
     }
   }

@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
 import type { VigesimalSchema } from '../../types'
-import { Panel } from '../../types'
 import { buildCodex } from '../codex'
 
 const schema: VigesimalSchema = {
@@ -13,44 +12,29 @@ const schema: VigesimalSchema = {
 }
 
 describe('buildCodex', () => {
-  it('starts with GRAMMAR v4 header', () => {
-    const codex = buildCodex(schema, [Panel.A])
-    expect(codex).toContain('## GRAMMAR v4 [A:core]')
+  it('includes the fields line', () => {
+    const codex = buildCodex(schema)
+    expect(codex).toContain('fields: tier,step,active')
   })
 
   it('includes the symbol legend line', () => {
-    const codex = buildCodex(schema, [Panel.A])
-    expect(codex).toContain('[]+,+  +=present _=absent 0=zero -=err')
-  })
-
-  it('includes schema declaration with [|] notation', () => {
-    const codex = buildCodex(schema, [Panel.A])
-    expect(codex).toContain('S1[tier|step|active]')
+    const codex = buildCodex(schema)
+    expect(codex).toContain('bool: 1=yes 0=no  null: _')
   })
 
   it('includes domain declarations for fields with closed domains', () => {
-    const codex = buildCodex(schema, [Panel.A])
-    expect(codex).toContain('  tier:prem|free|trial')
-    expect(codex).toContain('  active:+|-')
+    const codex = buildCodex(schema)
+    expect(codex).toContain('  tier: prem|free|trial')
+    expect(codex).toContain('  active: +|-')
   })
 
   it('omits domain line for fields without a domain', () => {
-    const codex = buildCodex(schema, [Panel.A])
+    const codex = buildCodex(schema)
     expect(codex).not.toContain('  step:')
   })
 
   it('ends with a newline', () => {
-    const codex = buildCodex(schema, [Panel.A])
+    const codex = buildCodex(schema)
     expect(codex.endsWith('\n')).toBe(true)
-  })
-
-  it('includes Panel-B note when Panel.B is requested', () => {
-    const codex = buildCodex(schema, [Panel.A, Panel.B])
-    expect(codex).toContain('[A:core B:tabular]')
-  })
-
-  it('includes Panel-C note when Panel.C is requested', () => {
-    const codex = buildCodex(schema, [Panel.A, Panel.C])
-    expect(codex).toContain('[A:core C:delta]')
   })
 })

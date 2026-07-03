@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
 import type { VigesimalSchema } from '../../types'
-import { Panel } from '../../types'
 import { SchemaRegistry } from '../SchemaRegistry'
 
 const manualSchema: VigesimalSchema = {
@@ -34,20 +33,12 @@ describe('SchemaRegistry', () => {
     expect(reg.get('item')).toEqual(schema)
   })
 
-  it('getCodex returns a Panel-A codex block for a registered schema', () => {
+  it('getCodex returns the codex containing the fields line', () => {
     const reg = new SchemaRegistry()
     reg.register('user', manualSchema)
     const codex = reg.getCodex('user')
-    expect(codex).toContain('## GRAMMAR v4 [A:core]')
-    expect(codex).toContain('S1[tier|step]')
-    expect(codex).toContain('  tier:prem|free')
-  })
-
-  it('getCodex passes requested panels to buildCodex', () => {
-    const reg = new SchemaRegistry()
-    reg.register('user', manualSchema)
-    const codex = reg.getCodex('user', [Panel.A, Panel.B])
-    expect(codex).toContain('[A:core B:tabular]')
+    expect(codex).toContain('fields: tier,step')
+    expect(codex).toContain('  tier: prem|free')
   })
 
   it('register overwrites an existing schema with the same name', () => {

@@ -1,26 +1,17 @@
 import type { VigesimalSchema } from '../types'
-import { Panel } from '../types'
+import { LEGEND } from '../encoder/panels'
 
-export function buildCodex(schema: VigesimalSchema, panels: Panel[]): string {
-  const hasB = panels.includes(Panel.B)
-  const hasC = panels.includes(Panel.C)
-  const hasD = panels.includes(Panel.D)
-
-  const panelTags = ['A:core', hasB && 'B:tabular', hasC && 'C:delta', hasD && 'D:emblem']
-    .filter(Boolean)
-    .join(' ')
-
-  const lines: string[] = [
-    `## GRAMMAR v4 [${panelTags}]`,
-    `[]+,+  +=present _=absent 0=zero -=err`,
-    `${schema.name}[${schema.fields.map(f => f.name).join('|')}]`,
+// The v4 "codex" is just the header contract: field order + legend.
+// Inject this once per session so the model knows the wire format.
+export function buildCodex(schema: VigesimalSchema): string {
+  const lines = [
+    `fields: ${schema.fields.map(f => f.name).join(',')}`,
+    LEGEND,
   ]
-
   for (const field of schema.fields) {
     if (field.domain && field.domain.length > 0) {
-      lines.push(`  ${field.name}:${field.domain.join('|')}`)
+      lines.push(`  ${field.name}: ${field.domain.join('|')}`)
     }
   }
-
   return lines.join('\n') + '\n'
 }

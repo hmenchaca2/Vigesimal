@@ -68,8 +68,8 @@ describe('encodeTabular', () => {
     const out = encodeTabular('employees', records, schema)
     const lines = out.split('\n')
     expect(lines[0]).toBe('## employees: 3 rows')
-    expect(lines.at(-2)).toBe('3,D1,1')
-    expect(lines.at(-1)).toBe('')
+    expect(lines[lines.length - 2]).toBe('3,D1,1')
+    expect(lines[lines.length - 1]).toBe('')
   })
 
   it('handles empty record lists', () => {

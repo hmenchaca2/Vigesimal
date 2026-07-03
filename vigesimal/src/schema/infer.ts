@@ -7,7 +7,7 @@ export function inferSchema(
 ): VigesimalSchema {
   if (sampleData.length === 0) return { name, fields: [] }
 
-  const fieldNames = Object.keys(sampleData[0])
+  const fieldNames = [...new Set(sampleData.flatMap(r => Object.keys(r)))]
 
   const fields: FieldDef[] = fieldNames.map(fieldName => {
     const allValues = sampleData.map(r => r[fieldName])

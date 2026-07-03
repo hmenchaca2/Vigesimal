@@ -41,7 +41,7 @@ describe('decodeTabular', () => {
       { department: 'D1' },
     ]
     const decoded = decodeTabular(encodeTabular('x', recs, s), s)
-    expect(decoded.at(-1)).toEqual({ department: 'D1' })
+    expect(decoded[decoded.length - 1]).toEqual({ department: 'D1' })
   })
 
   it('decodes absent fields as null', () => {

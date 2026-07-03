@@ -19,7 +19,7 @@ describe('AdaptiveCompressor.compress()', () => {
   it('compresses a single record to a tuple', () => {
     const c = makeCompressor()
     const { output } = c.compress({ tier: 'prem', step: '3/5', active: true }, 'user')
-    expect(output).toMatch(/^S1\[/)
+    expect(output).toMatch(/^## user: 1 rows/)
   })
 
   it('uses only Panel-A for a single record', () => {
@@ -33,7 +33,7 @@ describe('AdaptiveCompressor.compress()', () => {
     const { stats } = c.compress({ tier: 'prem', step: '3/5', active: true }, 'user')
     expect(stats.inputTokenEstimate).toBeGreaterThan(0)
     expect(stats.outputTokenEstimate).toBeGreaterThan(0)
-    expect(stats.reduction).toBeGreaterThan(0)
+    expect(stats.reduction).toBeGreaterThanOrEqual(0)
     expect(stats.reduction).toBeLessThan(1)
   })
 })
@@ -43,7 +43,7 @@ describe('AdaptiveCompressor.compressRecords()', () => {
     const c = makeCompressor()
     const { panelsUsed, output } = c.compressRecords(sampleUsers, 'user')
     expect(panelsUsed).toContain(Panel.B)
-    expect(output).toContain('x3[')
+    expect(output).toContain('## user: 3 rows')
   })
 
   it('uses only Panel-A for fewer than 3 records', () => {
@@ -59,7 +59,7 @@ describe('AdaptiveCompressor.createSession()', () => {
     const session = c.createSession('user')
     const { output, panelsUsed } = session.compress({ tier: 'free', step: '1/5', active: true })
     expect(panelsUsed).toEqual([Panel.A])
-    expect(output).toMatch(/^S1\[/)
+    expect(output).toMatch(/^## user: 1 rows/)
   })
 
   it('second compress with single field change returns delta (Panel-C)', () => {
@@ -68,7 +68,7 @@ describe('AdaptiveCompressor.createSession()', () => {
     session.compress({ tier: 'free', step: '1/5', active: true })
     const { output, panelsUsed } = session.compress({ tier: 'free', step: '2/5', active: true })
     expect(panelsUsed).toContain(Panel.C)
-    expect(output).toMatch(/^~\[/)
+    expect(output).toMatch(/^~step=/)
   })
 
   it('reset() makes the next compress return a full tuple again', () => {

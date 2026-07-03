@@ -30,12 +30,13 @@ export class DeltaTracker {
       }
     }
 
-    // Compute per-field delta
+    // Compute per-field delta — union of both key sets catches deletions
     const delta: DeltaMap = {}
     let changedCount = 0
-    for (const key of Object.keys(newState)) {
+    const allKeys = new Set([...Object.keys(this.prevState), ...Object.keys(newState)])
+    for (const key of allKeys) {
       if (newState[key] !== this.prevState[key]) {
-        delta[key] = newState[key]
+        delta[key] = newState[key]  // undefined when key was deleted
         changedCount++
       }
     }
@@ -54,6 +55,10 @@ export class DeltaTracker {
 
     this.prevState = { ...newState }
     return { type: 'delta', delta }
+  }
+
+  getTurnCount(): number {
+    return this.turnCount
   }
 
   shouldReset(): boolean {
