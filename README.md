@@ -47,7 +47,7 @@ Measured on claude-haiku-4-5 with 179 retrieval/aggregation/filtering questions 
 | json_compact | 56.4% | 3,253 | 0.155 |
 | json_pretty | 54.2% | 5,005 | 0.091 |
 
-The headline: **vigesimal edges out TOON-style CSV on accuracy, tokens, and efficiency simultaneously**, while remaining lossless where bare CSV is ambiguous. Against JSON the gap is larger: on this flat-structured benchmark, verbose JSON both cost ~2.7× the tokens *and* scored ~9 points lower — the model appears to lose signal in the structural noise. (Scope honestly stated: one model family, flat tabular data; see BENCHMARK.md for cross-model validation status and limitations.)
+The headline: **vigesimal edges out TOON-style CSV on accuracy, tokens, and efficiency simultaneously**, while remaining lossless where bare CSV is ambiguous. Against JSON the gap is larger: on this flat-structured benchmark, verbose JSON both cost ~2.7× the tokens *and* scored ~9 points lower — the model appears to lose signal in the structural noise. (Scope honestly stated: flat tabular data, two models tested. The vigesimal-over-TOON ranking replicates on claude-sonnet-5 — 59.2% vs 57.0% accuracy at fewer tokens; see BENCHMARK.md for the full cross-model table and limitations.)
 
 ## Installation
 

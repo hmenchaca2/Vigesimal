@@ -19,10 +19,12 @@ DATASETS = [
 
 # Cost per 1M tokens (USD) — for estimate only
 COST_PER_1M_INPUT: dict[str, float] = {
-    "claude-haiku-4-5-20251001": 0.25,
+    "claude-haiku-4-5-20251001": 1.00,
+    "claude-sonnet-5": 2.00,  # introductory pricing through 2026-08-31 ($3 after)
 }
 COST_PER_1M_OUTPUT: dict[str, float] = {
-    "claude-haiku-4-5-20251001": 1.25,
+    "claude-haiku-4-5-20251001": 5.00,
+    "claude-sonnet-5": 10.00,  # introductory pricing through 2026-08-31 ($15 after)
 }
 
 # Default fallback prices for unknown models (cents per 1M tokens)

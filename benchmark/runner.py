@@ -310,13 +310,21 @@ class BenchmarkRunner:
 
         for attempt in range(1, self._MAX_RETRIES + 1):
             try:
-                response = self._client.messages.create(
+                params = dict(
                     model=self.model,
                     max_tokens=256,
                     system=SYSTEM_PROMPT,
                     messages=[{"role": "user", "content": user_msg}],
                 )
-                text = response.content[0].text.strip()
+                # Models with default-on adaptive thinking emit a thinking
+                # block first; disable for benchmark comparability and pull
+                # the first text block rather than content[0].
+                if self.model.startswith("claude-sonnet-5"):
+                    params["thinking"] = {"type": "disabled"}
+                response = self._client.messages.create(**params)
+                text = next(
+                    b.text for b in response.content if b.type == "text"
+                ).strip()
                 input_tok = response.usage.input_tokens
                 output_tok = response.usage.output_tokens
                 return text, input_tok, output_tok

@@ -84,4 +84,20 @@ Stated plainly so you don't have to discover them yourself:
 | Model | Encoders | Status |
 |---|---|---|
 | claude-haiku-4-5 | all 6 | ✅ complete (table above) |
-| claude-sonnet-5 | toon, vigesimal_v4 | see results below when present |
+| claude-sonnet-5 | toon, vigesimal_v4 | ✅ complete (below) |
+
+### claude-sonnet-5 results (2026-07-03, thinking disabled, same 179 questions)
+
+| Encoder | Accuracy | Avg input tokens |
+|---|---|---|
+| vigesimal_v4 (= released v1) | **59.2%** | **1,870** |
+| toon | 57.0% | 1,883 |
+
+The ranking replicates: vigesimal leads toon on both accuracy (+2.2 pts) and
+tokens on a second, stronger model. Notes: (a) thinking was explicitly disabled
+to match the Haiku condition; (b) two calls (of 358) failed with transient 529
+overload errors and are scored as wrong; (c) raw JSONLs in
+[`benchmark/results/sonnet5/`](benchmark/results/sonnet5/). Absolute accuracy
+is lower than Haiku's run — most of the delta is in aggregation/filtering
+questions where Sonnet 5 without thinking answers more tersely; the
+encoder-relative comparison is the meaningful signal here.
