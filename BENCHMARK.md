@@ -105,7 +105,6 @@ python3 -m pytest tests/            # encoder unit tests (31, free)
 
 # LLMLingua-2 baseline needs its own venv (classifier-based, CPU-only,
 # ~2GB Hugging Face checkpoint downloaded on first use):
-cd benchmark
 python3 -m venv .venv-llmlingua
 source .venv-llmlingua/bin/activate
 pip install -r requirements-llmlingua.txt
@@ -113,7 +112,8 @@ pip install -r requirements-llmlingua.txt
 # this same venv (requirements-llmlingua.txt covers llmlingua, torch,
 # pytest, and anthropic):
 # full run: ~$0.51 on claude-haiku-4-5 (higher than other encoders because
-# LLMLingua-2 overshoots its token-budget target — see calibration table above)
+# llmlingua2 averaged 2,388 tokens/question vs. vigesimal_v4's 1,888 — see
+# calibration table above)
 ```
 
 ## Threats to validity
