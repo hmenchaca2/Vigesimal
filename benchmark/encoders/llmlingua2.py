@@ -8,6 +8,8 @@ average token count for that dataset so the comparison holds token budget
 roughly equal. See docs/superpowers/specs/2026-07-07-llmlingua2-baseline-design.md.
 """
 
+import threading
+
 from .base import Encoder
 from .json_compact import JsonCompactEncoder
 
@@ -35,6 +37,12 @@ class LLMLingua2Encoder(Encoder):
         self._compressor = None  # lazy-loaded on first encode() call
         self._json_encoder = JsonCompactEncoder()
         self._cache: dict[str, str] = {}
+        # Guards compressor construction and compress_prompt calls: the
+        # runner shares one encoder instance across a ThreadPoolExecutor,
+        # so without this, concurrent threads hitting the same dataset_name
+        # before the cache is populated would each load their own multi-GB
+        # PromptCompressor and/or redo the compression forward pass.
+        self._lock = threading.Lock()
 
     def _get_compressor(self):
         if self._compressor is None:
@@ -56,13 +64,17 @@ class LLMLingua2Encoder(Encoder):
                 f"add it to TARGET_TOKENS in {__name__}."
             )
 
-        source_text = self._json_encoder.encode(dataset_name, data)
-        compressor = self._get_compressor()
-        result = compressor.compress_prompt(
-            context=[source_text],
-            rate=0.5,
-            target_token=TARGET_TOKENS[dataset_name],
-        )
-        compressed = result["compressed_prompt"]
-        self._cache[dataset_name] = compressed
-        return compressed
+        with self._lock:
+            if dataset_name in self._cache:  # re-check: another thread may have finished while we waited
+                return self._cache[dataset_name]
+
+            source_text = self._json_encoder.encode(dataset_name, data)
+            compressor = self._get_compressor()
+            result = compressor.compress_prompt(
+                context=[source_text],
+                rate=0.5,  # inert here: target_token below overrides rate per llmlingua's own docstring
+                target_token=TARGET_TOKENS[dataset_name],
+            )
+            compressed = result["compressed_prompt"]
+            self._cache[dataset_name] = compressed
+            return compressed
