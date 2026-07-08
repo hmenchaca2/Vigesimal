@@ -156,3 +156,28 @@ overload errors and are scored as wrong; (c) raw JSONLs in
 is lower than Haiku's run — most of the delta is in aggregation/filtering
 questions where Sonnet 5 without thinking answers more tersely; the
 encoder-relative comparison is the meaningful signal here.
+
+## Related work
+
+Vigesimal sits alongside four prompt/context compression techniques from
+recent research. Only LLMLingua-2 is benchmarked live above (task-agnostic,
+CPU-runnable, no finetuning required); the other three require a finetuned
+model checkpoint to reproduce, so their numbers below are cited from the
+original papers, not independently verified in this repo.
+
+| Technique | Mechanism | Numbers | Requires finetuning? |
+|---|---|---|---|
+| [LLMLingua](https://arxiv.org/abs/2310.05736) (Jiang et al., EMNLP 2023) | Query-aware token pruning via a small LM budget controller | Up to ~20x compression, near-lossless at 2-5x (task-dependent, paper-reported) | No — uses an off-the-shelf small LM, but not run here |
+| [LLMLingua-2](https://arxiv.org/abs/2403.12968) (Pan et al., ACL Findings 2024) | Task-agnostic token classification, distilled from GPT-4 | See Results table above (live run, this repo) | No — classifier checkpoint, run live in this benchmark |
+| [Gist Tokens](https://arxiv.org/abs/2304.08467) (Mu, Li, Goodman, NeurIPS 2023) | Finetunes the model itself to compress a prompt into a handful of learned "gist" activation vectors | Paper reports up to ~26x compression on instruction prompts with minimal quality loss | **Yes** — requires instruction-finetuning the base model; not reproduced here |
+| [ICAE](https://arxiv.org/abs/2307.06945) (Ge et al., ICLR 2024) | Trained LoRA encoder compresses context into "memory slots" a frozen LLM reads | Paper reports ~4x compression on Llama-based models | **Yes** — requires a trained encoder; not reproduced here |
+| **Vigesimal** | Structural re-encoding: CSV-style rows + payoff-gated dictionary codes, no trained components | See Results table above (live run, this repo) | No |
+
+Where Vigesimal differs mechanically from all four: it doesn't score or prune
+tokens from prose (LLMLingua/-2), and it doesn't require a trained model
+(Gist Tokens, ICAE). It re-encodes already-structured data into a denser
+syntax — closer in spirit to normalizing a date format than to summarization.
+That also means it doesn't apply to free-form prose, which is the one
+"threats to validity" difference worth stating up front: LLMLingua/-2 works
+on arbitrary text; Vigesimal only helps on structured, tabular-shaped data
+(see the existing "Flat tabular data only" threat above).
