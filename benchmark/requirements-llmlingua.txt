@@ -1,3 +1,4 @@
 llmlingua
 torch
 pytest
+anthropic
