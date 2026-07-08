@@ -1,2 +1,3 @@
 llmlingua
 torch
+pytest
