@@ -44,12 +44,13 @@ Measured on claude-haiku-4-5 with 179 retrieval/aggregation/filtering questions 
 
 | Encoder | Accuracy | Avg tokens | Efficiency (acc/token) |
 |---|---|---|---|
-| **vigesimal v1 (this release)** | **63.7%** | **1,888** | **0.296** |
+| **Vigesimal v1 (this release)** | **63.7%** | **1,888** | **0.296** |
 | [TOON](https://github.com/toon-format/toon)-style CSV | 63.1% | 1,901 | 0.287 |
 | json_compact | 56.4% | 3,253 | 0.155 |
 | json_pretty | 54.2% | 5,005 | 0.091 |
+| [LLMLingua-2](https://arxiv.org/abs/2403.12968) (Microsoft) | 39.1% | 2,388 | 0.143 |
 
-The headline: **vigesimal edges out TOON-style CSV on accuracy, tokens, and efficiency simultaneously**, while remaining lossless where bare CSV is ambiguous. Against JSON the gap is larger: on this flat-structured benchmark, verbose JSON both cost ~2.7× the tokens *and* scored ~9 points lower — the model appears to lose signal in the structural noise. (Scope honestly stated: flat tabular data, two models tested. The vigesimal-over-TOON ranking replicates on claude-sonnet-5 — 59.2% vs 57.0% accuracy at fewer tokens; see BENCHMARK.md for the full cross-model table and limitations.)
+The headline: **Vigesimal edges out TOON-style CSV on accuracy, tokens, and efficiency simultaneously**, while remaining lossless where bare CSV is ambiguous. Against JSON the gap is larger: on this flat-structured benchmark, verbose JSON both cost ~2.7× the tokens *and* scored ~9 points lower — the model appears to lose signal in the structural noise. Against LLMLingua-2 — Microsoft's token-pruning compression research, calibrated to the same token budget — the gap is largest of all: Vigesimal wins by 24.6 points while using *fewer* tokens, not more. (Scope honestly stated: flat tabular data, two models tested, LLMLingua-2 used off-label on structured data it wasn't tuned for. The Vigesimal-over-TOON ranking replicates on claude-sonnet-5 — 59.2% vs 57.0% accuracy at fewer tokens; see BENCHMARK.md for the full cross-model table, LLMLingua-2 calibration details, and limitations.)
 
 ## Installation
 

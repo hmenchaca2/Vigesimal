@@ -12,7 +12,7 @@ Everything needed to audit or reproduce the numbers in the README.
 | Questions | 179, generated deterministically (`seed=42`) by [`benchmark/questions/generator.py`](benchmark/questions/generator.py) |
 | Categories | field_retrieval (72), aggregation (45), filtering (32), structure_aware (24), constraint_check (6) |
 | Datasets | 6 synthetic datasets in [`benchmark/datasets/`](benchmark/datasets/): employee_records (50 rows), ecommerce_orders, time_series, github_repos, event_logs, config (nested dict) |
-| Encoders | [`benchmark/encoders/`](benchmark/encoders/) — `json_pretty`, `json_compact`, `toon`, `vigesimal_v1` (early prototype), `vigesimal_v3`, `vigesimal_v4` (released as **Vigesimal v1**), `llmlingua2` (same 179 questions / 6 datasets as every other encoder) |
+| Encoders | [`benchmark/encoders/`](benchmark/encoders/) — `json_pretty`, `json_compact`, `toon`, **Vigesimal v1**, `llmlingua2` (same 179 questions / 6 datasets as every other encoder) |
 | Token counting | js-tiktoken `o200k_base` for encoded-payload counts ([`benchmark/token_counter.py`](benchmark/token_counter.py)); API-reported `usage` tokens for cost |
 | Runner | [`benchmark/runner.py`](benchmark/runner.py) |
 
@@ -42,10 +42,8 @@ No condition receives format instructions beyond what the encoded block itself c
 
 | Encoder | Accuracy | Avg encoded tokens | Efficiency |
 |---|---|---|---|
-| vigesimal_v4 (= released v1) | 63.7% | 1,888 | 0.296 |
+| Vigesimal v1 | 63.7% | 1,888 | 0.296 |
 | toon | 63.1% | 1,901 | 0.287 |
-| vigesimal_v3 | 59.2% | 1,978 | 0.260 |
-| vigesimal_v1 (prototype) | 58.7% | 2,074 | 0.246 |
 | json_compact | 56.4% | 3,253 | 0.155 |
 | json_pretty | 54.2% | 5,005 | 0.091 |
 | llmlingua2 | 39.1% | 2,388 | 0.143 |
@@ -55,7 +53,7 @@ No condition receives format instructions beyond what the encoded block itself c
 LLMLingua-2 compresses from `json_compact` and is task-agnostic — it has no
 query awareness, so each dataset is compressed once (not once per question).
 To keep the comparison fair on tokens, each dataset's `target_token` was
-calibrated to match vigesimal_v4's recorded average, via `TARGET_TOKENS` in
+calibrated to match Vigesimal v1's recorded average, via `TARGET_TOKENS` in
 [`benchmark/encoders/llmlingua2.py`](benchmark/encoders/llmlingua2.py).
 
 Achieved vs. target (free local calibration pass):
@@ -74,7 +72,7 @@ LLMLingua-2 systematically overshot its target on 5 of 6 datasets (by
 a request to the compressor, not a hard guarantee, especially on
 structured/repetitive text quite different from the prose/meeting-transcript
 data LLMLingua-2 was tuned on. This means the actual paid run used *more*
-tokens on average (2,388) than vigesimal_v4 (1,888) despite the calibration
+tokens on average (2,388) than Vigesimal v1 (1,888) despite the calibration
 attempt — worth stating plainly since it affects how to read the accuracy
 comparison: LLMLingua-2 didn't just lose on accuracy, it also didn't hit its
 token-budget target.
@@ -112,7 +110,7 @@ pip install -r requirements-llmlingua.txt
 # this same venv (requirements-llmlingua.txt covers llmlingua, torch,
 # pytest, and anthropic):
 # full run: ~$0.51 on claude-haiku-4-5 (higher than other encoders because
-# llmlingua2 averaged 2,388 tokens/question vs. vigesimal_v4's 1,888 — see
+# llmlingua2 averaged 2,388 tokens/question vs. Vigesimal v1's 1,888 — see
 # calibration table above)
 ```
 
@@ -139,13 +137,13 @@ Stated plainly so you don't have to discover them yourself:
 | Model | Encoders | Status |
 |---|---|---|
 | claude-haiku-4-5 | all 6 | ✅ complete (table above) |
-| claude-sonnet-5 | toon, vigesimal_v4 | ✅ complete (below) |
+| claude-sonnet-5 | toon, Vigesimal v1 | ✅ complete (below) |
 
 ### claude-sonnet-5 results (2026-07-03, thinking disabled, same 179 questions)
 
 | Encoder | Accuracy | Avg input tokens |
 |---|---|---|
-| vigesimal_v4 (= released v1) | **59.2%** | **1,870** |
+| Vigesimal v1 | **59.2%** | **1,870** |
 | toon | 57.0% | 1,883 |
 
 The ranking replicates: vigesimal leads toon on both accuracy (+2.2 pts) and
