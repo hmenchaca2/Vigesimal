@@ -8,3 +8,6 @@ dist/
 docs/superpowers/
 vigesimal-workspace/
 *.skill
+
+# LLMLingua-2 local dev
+benchmark/.venv-llmlingua/
