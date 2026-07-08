@@ -55,3 +55,29 @@ class TestCalibrationTargets:
             "event_logs", "github_repos", "time_series",
         }
         assert set(TARGET_TOKENS.keys()) == expected
+
+
+import os
+import pytest
+
+
+@pytest.mark.skipif(
+    not os.environ.get("RUN_LLMLINGUA_TESTS"),
+    reason="requires the downloaded LLMLingua-2 checkpoint (~2GB); "
+           "set RUN_LLMLINGUA_TESTS=1 and run inside benchmark/.venv-llmlingua",
+)
+class TestRealCompression:
+    def test_compresses_shorter_than_source(self):
+        import json
+        from pathlib import Path
+
+        enc = LLMLingua2Encoder()
+        with open(Path(__file__).parent.parent / "datasets" / "employee_records.json") as f:
+            data = json.load(f)
+
+        compressed = enc.encode("employee_records", data)
+        source = enc._json_encoder.encode("employee_records", data)
+
+        assert isinstance(compressed, str)
+        assert len(compressed) > 0
+        assert len(compressed) < len(source)

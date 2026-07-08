@@ -6,7 +6,7 @@ MODELS = [
     # "claude-sonnet-4-5",
 ]
 
-ENCODERS = ["json_pretty", "json_compact", "toon", "vigesimal_v1", "vigesimal_v3", "vigesimal_v4"]
+ENCODERS = ["json_pretty", "json_compact", "toon", "vigesimal_v1", "vigesimal_v3", "vigesimal_v4", "llmlingua2"]
 
 DATASETS = [
     "employee_records",
