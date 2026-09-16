@@ -1,5 +1,13 @@
 # Benchmark Methodology
 
+> **Historical results—not validation of the unreleased typed format.** These
+> experiments used older encoders and a custom TOON-style implementation, not
+> the official TOON SDK. The primary accuracy difference was 114/179 versus
+> 113/179 correct, which does not establish superiority. Original reports below
+> are retained for auditability. The new local serialization comparison is in
+> [current-serialization.md](benchmark/results/current-serialization.md); it
+> makes no model-accuracy claim. Fresh repeated quality evaluations are pending.
+
 Everything needed to audit or reproduce the numbers in the README.
 
 ## Evaluation design

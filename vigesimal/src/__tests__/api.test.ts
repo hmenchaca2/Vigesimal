@@ -27,12 +27,11 @@ describe('decode', () => {
     expect(decoded).toEqual(records)
   })
 
-  it('decodes without a schema, coercing numeric columns', () => {
+  it('decodes without a schema using embedded types', () => {
     const decoded = decode(encode(records))
     expect(decoded[0].id).toBe(1)
     expect(decoded[0].department).toBe('Engineering')
-    // booleans are ambiguous without a schema — decoded as the numbers 1/0
-    expect(decoded[0].active).toBe(1)
+    expect(decoded[0].active).toBe(true)
   })
 
   it('decodes nulls without a schema', () => {

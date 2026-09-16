@@ -35,8 +35,10 @@ export class DeltaTracker {
     let changedCount = 0
     const allKeys = new Set([...Object.keys(this.prevState), ...Object.keys(newState)])
     for (const key of allKeys) {
-      if (newState[key] !== this.prevState[key]) {
-        delta[key] = newState[key]  // undefined when key was deleted
+      const next = Object.prototype.hasOwnProperty.call(newState, key) ? newState[key] : undefined
+      const previous = Object.prototype.hasOwnProperty.call(this.prevState, key) ? this.prevState[key] : undefined
+      if (next !== previous) {
+        Object.defineProperty(delta, key, { value: next, enumerable: true, configurable: true, writable: true })
         changedCount++
       }
     }

@@ -1,77 +1,76 @@
-# Vigesimal v1 — Wire Format Reference
+# Typed wire format (unreleased)
 
-## Tabular block
-
-```
-## <name>: <N> rows
-fields: f1,f2,f3
-codes: D1=Engineering L1="New York"        (omitted when no value qualifies)
+```text
+## employees: 2 rows
+fields: id,department,active
+types: string,string,boolean
+codes: D1=Engineering
 bool: 1=yes 0=no  null: _
 
-<row>
-<row>
+00123,D1,1
+00124,D1,0
 ```
 
-- **Header line** — `## <name>: <N> rows`. An empty dataset is exactly `## <name>: 0 rows\n` with no further lines.
-- **fields** — comma-separated field names, declared once. Rows are positional; the field union across all records is used (first-seen order), so sparse records are supported.
-- **codes** — space-separated `CODE=value` pairs. A code is one uppercase letter (derived from the field name; collisions resolved by the next distinct letter) plus one base-20 digit (`1-9`, `A-J`) — max 19 codes per field. Values containing a space, `=`, `,`, or `"` are CSV-quoted: `L1="New York"`.
-- **legend** — always `bool: 1=yes 0=no  null: _`.
-- **blank line**, then one CSV row per record.
+The dictionary line is optional and selected by a payoff heuristic. The type line
+is required in newly emitted nonempty blocks. Legacy blocks without types are
+readable: supply a schema to recover types, or receive strings/null.
 
-## Scalars
+An empty dataset is `## <name>: 0 rows\n`. Nonempty datasets require at least
+one field. Dataset names cannot contain quotes or control characters. Field
+names cannot be empty or contain quotes, commas, equals signs, tildes, or control
+characters. Duplicate fields are invalid. Object keys such as `__proto__` are
+handled as data, not prototype setters.
 
-| Value | Wire form |
+## Supported scalars
+
+| Input | Wire form |
 |---|---|
-| `true` / `false` | `1` / `0` |
-| `null` / absent field | `_` |
-| number | literal (`42`, `3.5`, `0`) |
-| string | literal; CSV-quoted (RFC-4180-style, `""` escapes a quote) when it contains `,`, `"`, or a newline |
+| true / false | 1 / 0 in boolean columns |
+| null / missing / undefined | _ |
+| finite number other than -0 | JavaScript decimal or exponent representation |
+| empty string | "" |
+| literal underscore | "_" |
+| other string | literal, quoted when necessary |
 
-Decode is **schema-aware**: `1`/`0` decode to booleans only when the field's type says so; numeric fields parse to numbers; everything else stays a string. `_` is null for every type.
+CSV quoting doubles embedded quotes. Quoted strings can contain commas, CR/LF,
+and quotes. The decoder scans logical records, not physical lines. Dictionary
+values follow the same quoting rule and may span lines. A literal equal to any
+assigned block code is quoted, regardless of its column. Only unquoted codes
+are substituted; codes cannot appear in numeric/boolean columns.
 
-## Dictionary substitution and collisions
+Columns must have one non-null scalar type. Objects, arrays, symbols, functions,
+bigints, nonfinite numbers, negative zero and mixed-type columns are rejected.
+Missing and undefined fields normalize to null; this is not a general-purpose
+JavaScript object serializer. `analyze` uses JSON fallback for sparse records.
 
-In a row, an **unquoted** token matching an assigned code (e.g. `D1`) decodes to its dictionary value. A literal data value that happens to equal an assigned code in the same field is emitted **quoted** (`"D1"`) so it stays distinguishable. Quoted tokens are never dictionary-resolved.
+## Validation
 
-## The payoff rule
+Declared row counts, field counts, types, quoting, dictionary declarations and
+provided schemas are checked. Extra/missing cells, duplicate declarations,
+invalid numbers/booleans, precision-losing numeric literals, and incompatible schemas cause errors. Do not depend
+on the older decoder's permissive repair behavior.
 
-A value earns a code only when:
+## Dictionaries and accounting
 
-```
-occurrences × (est(value) − est(code)) > est(" X1=" + quoted_value)
-```
+Codes are one uppercase letter plus a digit from `1-9A-J`, at most 19 per field
+and 26 coded fields. Candidate selection estimates substitution payoff with an
+`X1` placeholder. Even a real counter does not make that heuristic an exact
+whole-block optimization. `analyze` compares complete output against compact
+JSON, so dictionary overhead cannot produce a larger selected payload under
+the chosen counter. The analyzer also compares coded and uncoded Vigesimal
+blocks and retains the smaller candidate. The low-level encoder retains its
+dictionary heuristic; use `analyze` for measured format selection.
 
-`est` is a token estimator — chars/4 by default, or a real tokenizer via the
-pluggable estimator. Code and declaration costs use the fixed placeholder
-`X1`; the real letter is assigned after payoff decisions, so per-letter
-tokenization differences are deliberately ignored. When more than 19 values
-qualify, the 19 highest-payoff values win. Numbers, booleans, and nulls are
-never coded.
+Raw JSON entry points reject duplicate object keys, including escaped aliases,
+before reporting a verified conversion. Session codices include ordered types
+alongside the fields and scalar legend.
 
-## Delta blocks (sessions)
+## Experimental deltas
 
-```
-~step=3/5,~status=ok        changed fields only, keyed
-~old_field=_                deletion / set-to-null
-~                            empty delta (no changes)
-```
+`~field=value` pairs use scalar quoting and a caller-supplied schema. Unknown
+or duplicate fields are rejected. `~` is an empty delta. `_` still conflates
+deletion and setting null. There is no sequence/baseline recovery protocol.
+Keep the baseline available and do not treat deltas as self-contained records.
 
-Values follow the same scalar rules (CSV-quoted when needed; the pair splitter respects quotes). Deltas are keyed rather than positional so a dropped field is explicit. Note: `_` conflates "set to null" with "deleted" — a known limitation.
-
-## Config blocks (nested dicts)
-
-```
-## <name>
-bool: 1=yes 0=no  null: _
-
-database.host: db.example.com
-features.dark_mode: 1
-```
-
-Flat dotted-key lines; no code table (config values rarely repeat).
-
-## Known edge cases
-
-- List-valued leaves in config blocks stringify via `String(v)` — not round-trippable; flatten or JSON-encode them yourself.
-- Empty nested dicts produce no output line.
-- Without a schema, `decode()` coerces all-numeric columns to numbers; booleans decode as `1`/`0` numbers. Keep the schema for exact round-trips.
+Nested config blocks in historical Python experiments are not part of this
+TypeScript API. Keep nested values as JSON rather than silently flattening them.

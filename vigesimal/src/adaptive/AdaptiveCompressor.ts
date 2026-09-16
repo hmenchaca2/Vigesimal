@@ -4,6 +4,7 @@ import { encodeTabular, encodeRow, encodeHeader, encodeDelta } from '../encoder/
 import { DeltaTracker } from '../delta/DeltaTracker'
 import type { SchemaRegistry } from '../schema/SchemaRegistry'
 import { selectPanels } from './select'
+import { validateRecords } from '../schema/validate'
 
 function estimateTokens(text: string): number {
   return Math.ceil(text.length / 4)
@@ -12,7 +13,7 @@ function estimateTokens(text: string): number {
 function makeStats(original: string, compressed: string) {
   const inputTokenEstimate = estimateTokens(original)
   const outputTokenEstimate = estimateTokens(compressed)
-  const reduction = Math.max(0, 1 - outputTokenEstimate / inputTokenEstimate)
+  const reduction = inputTokenEstimate === 0 ? 0 : 1 - outputTokenEstimate / inputTokenEstimate
   return { inputTokenEstimate, outputTokenEstimate, reduction }
 }
 
@@ -51,6 +52,8 @@ export class AdaptiveCompressor {
 
     return {
       compress(state: Record<string, unknown>): CompressResult {
+        // Do not advance the baseline when a payload cannot be serialized.
+        validateRecords([state], schema)
         const deltaResult = tracker.update(state)
         const panels = selectPanels({
           isArray: false,

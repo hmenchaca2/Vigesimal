@@ -1,86 +1,56 @@
-# vigesimal
+# Vigesimal
 
-**Token-efficient serialization for LLM context.** Flat, repeated records — query results, agent state, tool output — encoded in a compact block the model reads at least as accurately as JSON, at a fraction of the tokens.
+Compact structured data for LLM context. Measure repetitive flat records and
+keep compact JSON when Vigesimal is unsupported or not smaller.
 
-```json
-[
-  { "id": 1, "department": "Engineering", "role": "Senior", "active": true },
-  { "id": 2, "department": "Engineering", "role": "Junior", "active": false }
-]
+**Unreleased breaking update:** new blocks include type metadata. Published npm
+behavior may differ. See the repository's migration notes before upgrading.
+
+```ts
+import { analyze, encode, decode } from 'vigesimal'
+
+const rows = [{ id: '00123', active: true }]
+const restored = decode(encode(rows)) // string ID and boolean preserved
+const report = analyze(rows)         // estimates by default
+console.log(report.format, report.output, report.warnings)
 ```
 
-becomes
+Supported: flat records with homogeneous string, boolean, finite-number or null
+columns. Negative zero is rejected. `encode` normalizes missing/undefined fields
+to null. `analyze` accepts JSON-compatible data and falls back for nested, mixed,
+or sparse records so their JSON shape is retained.
 
-```
-## employees: 2 rows
-fields: id,department,role,active
-codes: D1=Engineering
-bool: 1=yes 0=no  null: _
+For raw JSON text, use `analyze(parseJson(text))` (import `parseJson` from
+`vigesimal`). It rejects numeric literals that would change when serialized back
+to JSON, including rounded IDs, underflow, overflow, and negative zero. Quote
+exact IDs or high-precision decimals as strings. This is decimal round-trip
+validation, not arbitrary-precision arithmetic. `analyze` cannot recover digits
+already lost by an earlier `JSON.parse` call. The CLI uses this guard by default.
 
-1,D1,Senior,1
-2,D1,Junior,0
-```
-
-Field names declared once; repeated values earn short dictionary codes only when a token-payoff rule proves they save more than they cost; booleans and nulls collapse to single glyphs. Lossless — proper CSV quoting and code-collision handling, unlike bare CSV.
-
-**Benchmark-validated on two Claude models**: beats TOON-style CSV on accuracy *and* tokens (63.7% vs 63.1% at fewer tokens on claude-haiku-4-5; 59.2% vs 57.0% on claude-sonnet-5), and uses ~62% fewer tokens than pretty JSON while scoring ~9 points higher. Full methodology and raw per-question results: [BENCHMARK.md](https://github.com/hmenchaca2/Vigesimal/blob/main/BENCHMARK.md).
-
-## Install
+## Local CLI
 
 ```bash
-npm install vigesimal
+npm ci
+npm run build
+node bin/vigesimal.mjs analyze results.json
+node bin/vigesimal.mjs analyze results.json --json --tokenizer o200k_base
 ```
 
-## Usage
+Tokenizer mode requires `js-tiktoken`. Default counts are character estimates;
+complete payload counts do not include surrounding prompts, output, or retries.
+The CLI performs no network requests and collects no telemetry. Its `--json`
+report includes the payload: do not send that report to public logs.
 
-```ts
-import { encode, decode, inferSchema } from 'vigesimal'
+`analyze` returns `format`, `output`, `encoded`, `supported`, `roundTrip`,
+`inputTokens`, `vigesimalTokens`, `outputTokens`, `reduction`, `tokenizer`,
+`estimated`, and `warnings`. Only a verified, strictly smaller Vigesimal payload
+is selected. Pass `est` and a descriptive `tokenizer` label for another counter.
 
-const block = encode(users, { name: 'users' })   // schema inferred
-const rows  = decode(block)                      // numeric columns coerced
+Legacy blocks without a `types:` line require a schema for typed decoding;
+otherwise values remain strings/null. New decoders reject malformed rows and
+schema mismatches. Session deltas are experimental and require retained history.
 
-// Exact round-trip (booleans included): keep the schema
-const schema = inferSchema('users', users)
-const exact  = decode(encode(users, { name: 'users', schema }), schema)
-```
+Historical benchmark results do not establish accuracy for this revised format.
+See the repository for the current serialization benchmark and limitations.
 
-### Session deltas for agent state
-
-Send full state once, then only what changed each turn:
-
-```ts
-import { SchemaRegistry, AdaptiveCompressor } from 'vigesimal'
-
-const registry = new SchemaRegistry()
-registry.infer('agentState', [initialState])
-const session = new AdaptiveCompressor(registry).createSession('agentState')
-
-session.compress({ tier: 'free', step: '1/5', status: 'ok' })  // full block
-session.compress({ tier: 'free', step: '2/5', status: 'ok' })  // "~step=2/5"
-```
-
-A drift-aware tracker re-sends the full state automatically when deltas stop paying off.
-
-### Exact token accounting
-
-The dictionary payoff rule defaults to a chars/4 estimate; plug in a real tokenizer for exact decisions:
-
-```ts
-import { getEncoding } from 'js-tiktoken'
-const enc = getEncoding('o200k_base')
-encode(users, { name: 'users', est: (s) => enc.encode(s).length })
-```
-
-## When not to use it
-
-Deeply nested or heterogeneous JSON (the format targets flat, repeated records), payloads under ~3 rows (header overhead dominates), and aggregation-heavy prompts (models are bad at arithmetic over any serialization — do the math in code).
-
-## Docs
-
-- [Wire-format reference](https://github.com/hmenchaca2/Vigesimal/blob/main/docs/format.md)
-- [Design rationale](https://github.com/hmenchaca2/Vigesimal/blob/main/docs/design.md)
-- [Benchmark methodology](https://github.com/hmenchaca2/Vigesimal/blob/main/BENCHMARK.md)
-
-## License
-
-MIT
+[Documentation and source](https://github.com/hmenchaca2/Vigesimal). MIT licensed.

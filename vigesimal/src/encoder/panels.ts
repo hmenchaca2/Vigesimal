@@ -1,6 +1,7 @@
 import type { DeltaMap, VigesimalSchema } from '../types'
 import { encodeScalar, quoteCsv } from './scalars'
 import { buildCodes, codesValue, type TokenEstimator } from './codes'
+import { validateField, validateName, validateRecords, validateSchema } from '../schema/validate'
 
 export const LEGEND = 'bool: 1=yes 0=no  null: _'
 
@@ -12,7 +13,10 @@ export function encodeHeader(
   schema: VigesimalSchema,
   codes: CodeTable
 ): string {
+  validateName(name)
+  validateSchema(schema)
   const lines = [`## ${name}: ${rowCount} rows`, `fields: ${schema.fields.map(f => f.name).join(',')}`]
+  lines.push(`types: ${schema.fields.map(f => f.type).join(',')}`)
   if (codes.size > 0) {
     const pairs: string[] = []
     for (const field of schema.fields) {
@@ -35,16 +39,17 @@ export function encodeRow(
   schema: VigesimalSchema,
   codes: CodeTable
 ): string {
+  validateRecords([record], schema)
+  const assigned = new Set([...codes.values()].flatMap(m => [...m.values()]))
   return schema.fields
     .map(f => {
-      const v = record[f.name]
+      const v = Object.prototype.hasOwnProperty.call(record, f.name) ? record[f.name] : undefined
       const fieldCodes = codes.get(f.name)
       if (fieldCodes && typeof v === 'string') {
         const code = fieldCodes.get(v)
         if (code !== undefined) return code
-        // Literal colliding with an assigned code must stay distinguishable
-        if ([...fieldCodes.values()].includes(v)) return quoteCsv(v)
       }
+      if (typeof v === 'string' && assigned.has(v)) return quoteCsv(v)
       return encodeScalar(v)
     })
     .join(',')
@@ -56,6 +61,8 @@ export function encodeTabular(
   schema: VigesimalSchema,
   est?: TokenEstimator
 ): string {
+  validateName(name)
+  validateRecords(records, schema)
   if (records.length === 0) return `## ${name}: 0 rows\n`
   const codes = buildCodes(schema.fields.map(f => f.name), records, est)
   const header = encodeHeader(name, records.length, schema, codes)
@@ -65,6 +72,9 @@ export function encodeTabular(
 
 // Keyed delta: ~field=value pairs, comma-separated; undefined -> _ (deletion).
 export function encodeDelta(delta: DeltaMap): string {
-  const pairs = Object.entries(delta).map(([k, v]) => `~${k}=${encodeScalar(v)}`)
+  const pairs = Object.entries(delta).map(([k, v]) => {
+    validateField(k)
+    return `~${k}=${encodeScalar(v)}`
+  })
   return pairs.length > 0 ? pairs.join(',') : '~'
 }

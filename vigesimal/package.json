@@ -1,7 +1,7 @@
 {
   "name": "vigesimal",
-  "version": "1.0.0",
-  "description": "Token-efficient serialization for LLM context \u2014 beats TOON and JSON on accuracy and tokens (benchmark-validated on two Claude models)",
+  "version": "2.0.0-next.0",
+  "description": "Compact structured data for LLM context, with verified round-trips and measured JSON fallback",
   "type": "module",
   "exports": {
     ".": {
@@ -14,18 +14,31 @@
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "bin"
   ],
+  "bin": {
+    "vigesimal": "./bin/vigesimal.mjs"
+  },
   "scripts": {
     "build": "tsup",
     "test": "vitest",
     "test:run": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "sync:playground": "npm run build && node scripts/sync-playground.mjs",
+    "check:playground": "node scripts/sync-playground.mjs --check",
+    "benchmark": "npm run build && node scripts/benchmark.mjs",
+    "test:package": "npm run build && node scripts/smoke-package.mjs"
   },
   "devDependencies": {
-    "typescript": "^5.4.0",
+    "@toon-format/toon": "4.1.1",
+    "csv-parse": "7.0.2",
+    "csv-stringify": "6.8.3",
+    "fast-check": "4.9.0",
+    "js-tiktoken": "1.0.21",
     "tsup": "^8.0.0",
-    "vitest": "^1.6.0"
+    "typescript": "^5.4.0",
+    "vitest": "5.0.0"
   },
   "engines": {
     "node": ">=18"

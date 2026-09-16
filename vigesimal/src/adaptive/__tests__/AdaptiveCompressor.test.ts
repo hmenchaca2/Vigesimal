@@ -33,7 +33,7 @@ describe('AdaptiveCompressor.compress()', () => {
     const { stats } = c.compress({ tier: 'prem', step: '3/5', active: true }, 'user')
     expect(stats.inputTokenEstimate).toBeGreaterThan(0)
     expect(stats.outputTokenEstimate).toBeGreaterThan(0)
-    expect(stats.reduction).toBeGreaterThanOrEqual(0)
+    expect(stats.reduction).toBe(1 - stats.outputTokenEstimate / stats.inputTokenEstimate)
     expect(stats.reduction).toBeLessThan(1)
   })
 })

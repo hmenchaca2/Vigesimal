@@ -25,6 +25,7 @@ describe('encodeHeader', () => {
     expect(h.split('\n')).toEqual([
       '## employees: 3 rows',
       'fields: id,department,active',
+      'types: numeric,string,boolean',
       'codes: D1=Engineering',
       LEGEND,
       '',

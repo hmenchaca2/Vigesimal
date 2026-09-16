@@ -11,7 +11,7 @@ export function estTokens(s: string): number {
 
 // Render a value for the codes: header line — quoted when ambiguous.
 export function codesValue(s: string): string {
-  if (/[ =,"]/.test(s)) return quoteCsv(s)
+  if (s === '' || /[\s=,"]/.test(s)) return quoteCsv(s)
   return s
 }
 
@@ -22,7 +22,7 @@ export function fieldLetters(fields: string[]): Map<string, string> {
     let letter: string | undefined
     for (const ch of field) {
       const up = ch.toUpperCase()
-      if (/[A-Z]/.test(up) && !taken.has(up)) {
+      if (/^[A-Z]$/.test(up) && !taken.has(up)) {
         letter = up
         break
       }

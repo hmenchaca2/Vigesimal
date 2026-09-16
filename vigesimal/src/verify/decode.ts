@@ -1,83 +1,105 @@
-import type { VigesimalSchema } from '../types'
+import type { FieldType, VigesimalSchema } from '../types'
 import { decodeScalar, splitCsvRow } from '../encoder/scalars'
+import { validateField, validateSchema } from '../schema/validate'
+import { LEGEND } from '../encoder/panels'
 
-interface ParsedHeader {
-  fields: string[]
-  codes: Map<string, string> // code -> value (codes are globally unique per block)
-  bodyStart: number
-}
-
-function parseHeader(lines: string[]): ParsedHeader {
-  if (!lines[0]?.startsWith('## ')) {
-    throw new Error(`Malformed vigesimal block: expected "## <name>: N rows", got ${lines[0]!}`)
-  }
-  const fieldsLine = lines[1]
-  if (!fieldsLine?.startsWith('fields: ')) {
-    throw new Error('Malformed vigesimal block: missing "fields:" line')
-  }
-  const fields = fieldsLine.slice('fields: '.length).split(',')
-
-  const codes = new Map<string, string>()
-  let i = 2
-  if (lines[i]?.startsWith('codes: ')) {
-    // pairs: CODE=value or CODE="quoted value", space-separated
-    const src = lines[i].slice('codes: '.length)
-    const pairRe = /([A-Z][1-9A-J])=("(?:[^"]|"")*"|\S+)/g
-    for (const m of src.matchAll(pairRe)) {
-      let value = m[2]
-      if (value.startsWith('"')) value = value.slice(1, -1).replace(/""/g, '"')
-      codes.set(m[1], value)
-    }
-    i++
-  }
-  if (!lines[i]?.startsWith('bool: ')) {
-    throw new Error('Malformed vigesimal block: missing legend line')
-  }
-  // Body starts immediately after the legend line
-  return { fields, codes, bodyStart: i + 1 }
-}
-
-export function decodeTabular(
-  encoded: string,
-  schema: VigesimalSchema
-): Record<string, unknown>[] {
-  const lines = encoded.split('\n')
-  if (lines[0]?.match(/^## .*: 0 rows$/)) return []
-  const { fields, codes, bodyStart } = parseHeader(lines)
-  const types = new Map(schema.fields.map(f => [f.name, f.type]))
-
-  const out: Record<string, unknown>[] = []
-  for (const line of lines.slice(bodyStart)) {
-    if (line === '') continue
-    const parts = splitCsvRow(line)
-    const rec: Record<string, unknown> = {}
-    fields.forEach((field, i) => {
-      const part = parts[i] ?? '_'
-      // Unquoted code token -> dictionary value; quoted "D1" stays literal.
-      if (!part.startsWith('"') && codes.has(part)) {
-        rec[field] = codes.get(part)
-      } else {
-        rec[field] = decodeScalar(part, types.get(field) ?? 'string')
+// Quoted values may span physical lines, including dictionary declarations.
+function logicalLines(encoded: string): string[] {
+  const lines: string[] = []
+  let current = ''
+  let quoted = false
+  for (let i = 0; i < encoded.length; i++) {
+    const ch = encoded[i]
+    if (ch === '"') {
+      if (quoted && encoded[i + 1] === '"') {
+        current += '""'
+        i++
+        continue
       }
-    })
-    out.push(rec)
+      quoted = !quoted
+    }
+    if (ch === '\n' && !quoted) {
+      lines.push(current.endsWith('\r') ? current.slice(0, -1) : current)
+      current = ''
+    } else current += ch
   }
+  if (quoted) throw new Error('Unterminated quoted value')
+  if (current) lines.push(current)
+  return lines
+}
+
+export function decodeTabular(encoded: string, schema?: VigesimalSchema): Record<string, unknown>[] {
+  if (schema) validateSchema(schema)
+  const lines = logicalLines(encoded)
+  const header = /^## ([^"\r\n]+): (0|[1-9]\d*) rows$/.exec(lines[0] ?? '')
+  if (!header) throw new Error('Malformed vigesimal block: invalid dataset header')
+  const count = Number(header[2])
+  if (!Number.isSafeInteger(count)) throw new Error('Invalid row count')
+  if (count === 0 && lines.length === 1) return []
+  if (!lines[1]?.startsWith('fields: ')) throw new Error('Malformed vigesimal block: missing "fields:" line')
+  const fields = lines[1].slice(8).split(',')
+  fields.forEach(validateField)
+  if (new Set(fields).size !== fields.length) throw new Error('Duplicate fields')
+  if (schema && (schema.fields.length !== fields.length || schema.fields.some((f, i) => f.name !== fields[i]))) {
+    throw new Error('Schema fields do not match the block')
+  }
+  let i = 2
+  let types: FieldType[] = schema?.fields.map(f => f.type) ?? fields.map(() => 'string')
+  if (lines[i]?.startsWith('types: ')) {
+    const declared = lines[i++].slice(7).split(',')
+    if (declared.length !== fields.length || declared.some(t => !['numeric', 'boolean', 'string'].includes(t))) {
+      throw new Error('Invalid type declaration')
+    }
+    if (schema && declared.some((t, index) => t !== types[index])) throw new Error('Schema types do not match the block')
+    types = declared as FieldType[]
+  }
+  const codes = new Map<string, string>()
+  if (lines[i]?.startsWith('codes: ')) {
+    let src = lines[i++].slice(7)
+    while (src) {
+      const pair = /^([A-Z][1-9A-J])=("(?:[^"]|"")*"|[^\s"]+)(?: |$)/.exec(src)
+      if (!pair || codes.has(pair[1])) throw new Error('Invalid or duplicate dictionary declaration')
+      const value = pair[2].startsWith('"') ? pair[2].slice(1, -1).replace(/""/g, '"') : pair[2]
+      codes.set(pair[1], value)
+      src = src.slice(pair[0].length)
+    }
+  }
+  if (lines[i++] !== LEGEND) throw new Error('Malformed vigesimal block: missing legend line')
+  // Legacy blocks can omit the separator; canonical blocks contain one.
+  if (lines[i] === '') i++
+  const out: Record<string, unknown>[] = []
+  for (const line of lines.slice(i)) {
+    const parts = splitCsvRow(line)
+    if (parts.length !== fields.length) throw new Error(`Row ${out.length}: field count mismatch`)
+    const entries = fields.map((field, index) => {
+      const part = parts[index]
+      if (!part.startsWith('"') && codes.has(part)) {
+        if (types[index] !== 'string') throw new Error(`Dictionary code in non-string field ${field}`)
+        return [field, codes.get(part)]
+      }
+      return [field, decodeScalar(part, types[index])]
+    })
+    out.push(Object.fromEntries(entries))
+  }
+  if (out.length !== count) throw new Error(`Row count mismatch: expected ${count}, got ${out.length}`)
   return out
 }
 
-export function decodeDelta(
-  encoded: string,
-  schema: VigesimalSchema
-): Record<string, unknown> {
+export function decodeDelta(encoded: string, schema: VigesimalSchema): Record<string, unknown> {
+  validateSchema(schema)
   if (encoded === '~') return {}
   const types = new Map(schema.fields.map(f => [f.name, f.type]))
-  const out: Record<string, unknown> = {}
+  const entries: [string, unknown][] = []
+  const seen = new Set<string>()
   for (const part of splitCsvRow(encoded)) {
     if (!part.startsWith('~')) throw new Error(`Malformed delta pair: ${part}`)
     const eq = part.indexOf('=')
     if (eq === -1) throw new Error(`Malformed delta pair: ${part}`)
     const field = part.slice(1, eq)
-    out[field] = decodeScalar(part.slice(eq + 1), types.get(field) ?? 'string')
+    validateField(field)
+    if (!types.has(field) || seen.has(field)) throw new Error(`Unknown or duplicate delta field: ${field}`)
+    seen.add(field)
+    entries.push([field, decodeScalar(part.slice(eq + 1), types.get(field)!)])
   }
-  return out
+  return Object.fromEntries(entries)
 }

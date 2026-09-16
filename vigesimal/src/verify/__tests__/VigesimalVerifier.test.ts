@@ -67,7 +67,7 @@ describe('decodeDelta', () => {
     expect(decodeDelta('~', schema)).toEqual({})
   })
   it('handles quoted values with commas', () => {
-    expect(decodeDelta('~msg="a,b"', schema)).toEqual({ msg: 'a,b' })
+    expect(decodeDelta('~department="a,b"', schema)).toEqual({ department: 'a,b' })
   })
 })
 

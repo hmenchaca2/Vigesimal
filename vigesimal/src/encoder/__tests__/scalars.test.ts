@@ -13,7 +13,7 @@ describe('encodeScalar', () => {
   it('quotes and doubles internal quotes', () =>
     expect(encodeScalar('say "hi"')).toBe('"say ""hi"""'))
   it('quotes strings containing newlines', () => expect(encodeScalar('a\nb')).toBe('"a\nb"'))
-  it('leaves empty string empty', () => expect(encodeScalar('')).toBe(''))
+  it('quotes empty strings', () => expect(encodeScalar('')).toBe('""'))
 })
 
 describe('decodeScalar', () => {

@@ -55,7 +55,7 @@ export type DeltaResult =
 export interface CompressStats {
   inputTokenEstimate: number    // rough estimate for original JSON
   outputTokenEstimate: number   // rough estimate for compressed output
-  reduction: number             // 0.0–1.0
+  reduction: number             // signed savings; negative means expansion
 }
 
 // Result of AdaptiveCompressor.compress() or session.compress()

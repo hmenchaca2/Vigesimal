@@ -1,0 +1,36 @@
+name: Library checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [22, 24]
+    defaults:
+      run:
+        working-directory: vigesimal
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: vigesimal/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run test:run
+      - run: npm run build
+      - run: npm run check:playground
+      - run: npm run benchmark
+      - run: node bin/vigesimal.mjs analyze ../benchmark/datasets/employee_records.json --json
+      - run: npm run test:package
+      - run: npm ci
+        working-directory: playground
+      - run: npm test
+        working-directory: playground
+      - run: npm run typecheck
+        working-directory: playground
+      - run: npm run build
+        working-directory: playground

@@ -1,152 +1,133 @@
 # Vigesimal
 
-[![npm](https://img.shields.io/npm/v/vigesimal)](https://www.npmjs.com/package/vigesimal) [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+**Compact structured data for LLM context.** Shared field headers and dictionary
+codes reduce repetition in flat database/API records. Measure your own payload;
+keep compact JSON whenever Vigesimal is unsupported or not smaller.
 
-**Token-efficient serialization for LLM context.** Flat, repeated records — query results, agent state, tool output — encoded in a compact block the model reads at least as accurately as JSON, at a fraction of the tokens.
+> This checkout contains an unreleased breaking update. New blocks include a
+> `types:` header. Read [migration notes](docs/migration.md) before upgrading.
+> Published npm behavior may differ. No new model-accuracy claim is made.
 
-## Show me in 30 seconds
-
-Input JSON:
-
-```json
-[
-  { "id": 1, "department": "Engineering", "role": "Senior", "active": true },
-  { "id": 2, "department": "Engineering", "role": "Junior", "active": false },
-  { "id": 3, "department": "Engineering", "role": "Senior", "active": true }
-]
-```
-
-Vigesimal:
-
-```
-## employees: 3 rows
-fields: id,department,role,active
-codes: D1=Engineering
-bool: 1=yes 0=no  null: _
-
-1,D1,Senior,1
-2,D1,Junior,0
-3,D1,Senior,1
-```
-
-Why it's smaller: field names are declared once, not per record; repeated values earn short dictionary codes — but only when a token-payoff rule proves the code saves more than its declaration costs; booleans and nulls collapse to single glyphs. Values with commas are properly quoted, so unlike naive CSV the block decodes losslessly.
-
-```ts
-import { encode, decode } from 'vigesimal'
-
-const block = encode(records, { name: 'employees' })
-const back  = decode(block)
-```
-
-## Benchmark results
-
-Measured on claude-haiku-4-5 with 179 retrieval/aggregation/filtering questions across 6 datasets (methodology, raw per-question results, and threats to validity in [BENCHMARK.md](BENCHMARK.md)):
-
-| Encoder | Accuracy | Avg tokens | Efficiency (acc/token) |
-|---|---|---|---|
-| **Vigesimal v1 (this release)** | **63.7%** | **1,888** | **0.296** |
-| [TOON](https://github.com/toon-format/toon)-style CSV | 63.1% | 1,901 | 0.287 |
-| json_compact | 56.4% | 3,253 | 0.155 |
-| json_pretty | 54.2% | 5,005 | 0.091 |
-| [LLMLingua-2](https://arxiv.org/abs/2403.12968) (Microsoft) | 39.1% | 2,388 | 0.143 |
-
-The headline: **Vigesimal edges out TOON-style CSV on accuracy, tokens, and efficiency simultaneously**, while remaining lossless where bare CSV is ambiguous. Against JSON the gap is larger: on this flat-structured benchmark, verbose JSON both cost ~2.7× the tokens *and* scored ~9 points lower — the model appears to lose signal in the structural noise. Against LLMLingua-2 — Microsoft's token-pruning compression research, calibrated to the same token budget — the gap is largest of all: Vigesimal wins by 24.6 points while using *fewer* tokens, not more. (Scope honestly stated: flat tabular data, two models tested, LLMLingua-2 used off-label on structured data it wasn't tuned for. The Vigesimal-over-TOON ranking replicates on claude-sonnet-5 — 59.2% vs 57.0% accuracy at fewer tokens; see BENCHMARK.md for the full cross-model table, LLMLingua-2 calibration details, and limitations.)
-
-## Installation
+## Try it locally
 
 ```bash
-npm install vigesimal
+cd vigesimal
+npm ci
+npm run build
+node bin/vigesimal.mjs analyze ../benchmark/datasets/employee_records.json --tokenizer o200k_base
 ```
 
-Or from source: `cd vigesimal && npm install && npm run build`.
+The CLI runs locally without telemetry or API calls. Omit `--tokenizer` for
+clearly labeled character-based estimates; use `--json` for the complete report
+and selected payload. Pass `-` as the filename to read standard input.
 
-## Usage
+After a release containing the CLI, the equivalent installed command will be
+`npx vigesimal analyze results.json`. It is not a promise about the currently
+published package. Tokenizer mode requires `js-tiktoken` installed alongside it.
 
-### Happy path
+## Evaluate before integrating
 
 ```ts
-import { encode, decode, inferSchema } from 'vigesimal'
+import { analyze } from 'vigesimal'
 
-const block = encode(users, { name: 'users' })     // schema inferred
-const rows  = decode(block)                         // numeric columns coerced
-
-// Exact round-trip (booleans included): keep the schema
-const schema = inferSchema('users', users)
-const exact  = decode(encode(users, { name: 'users', schema }), schema)
+const report = analyze(records)
+console.log(report.format)       // 'vigesimal' or 'json'
+console.log(report.reduction)    // selected payload's savings
+console.log(report.roundTrip)    // whether Vigesimal was verified
+console.log(report.warnings)     // estimates, unsupported shape, fallback
+const context = report.output   // use with the explicit format label
 ```
 
-### Session deltas for agent state
-
-```ts
-import { SchemaRegistry, AdaptiveCompressor } from 'vigesimal'
-
-const registry = new SchemaRegistry()
-registry.infer('agentState', [initialState])
-const session = new AdaptiveCompressor(registry).createSession('agentState')
-
-session.compress({ tier: 'free', step: '1/5', status: 'ok' })
-// → full block:  ## agentState: 1 rows ...
-
-session.compress({ tier: 'free', step: '2/5', status: 'ok' })
-// → delta only:  ~step=2/5
-```
-
-The built-in `DeltaTracker` fires typed resets (`session_start`, `tier_upgrade`, `drift_exceeded`, …) and re-baselines automatically when the state churns too much for deltas to stay worthwhile.
-
-### Verify and decode
-
-```ts
-import { decodeTabular, decodeDelta, VigesimalVerifier } from 'vigesimal'
-
-const records = decodeTabular(encoded, schema)      // lossless round-trip
-const changes = decodeDelta('~step=3/5', schema)    // { step: '3/5' }
-const check   = new VigesimalVerifier().verify(encoded, original, schema)
-```
-
-### Real-tokenizer payoff decisions
-
-By default the code-dictionary payoff rule uses a chars/4 estimate. For exact decisions, plug in a real tokenizer:
+`analyze()` compares complete payloads, verifies the decoded values, and selects
+Vigesimal only when smaller under the supplied counter. It does not predict model
+quality, billing, or end-to-end latency. Default counts are estimates.
 
 ```ts
 import { getEncoding } from 'js-tiktoken'
-
-const enc = getEncoding('o200k_base')
-encode(users, { name: 'users', est: (s) => enc.encode(s).length })
+const tokenizer = getEncoding('o200k_base')
+const report = analyze(records, {
+  est: text => tokenizer.encode(text, [], []).length,
+  tokenizer: 'o200k_base',
+})
 ```
 
-## Use cases
+Use the tokenizer appropriate to your model. `o200k_base` is not a Claude token
+counter. Counts refer to the encoded data, not the surrounding request or output.
 
-**Agent state across turns.** An agent loop that re-injects its full state every turn pays for the same tokens dozens of times. Encode once, then send only `~step=3/5,~status=ok` deltas.
+## Encode and decode
 
-**Tool output compression.** A 50-row query result that costs ~6,400 tokens pretty-printed fits in ~2,000 as a vigesimal block — and the model answers retrieval questions over it at least as accurately.
+```ts
+import { encode, decode } from 'vigesimal'
+const rows = [{ id: '00123', department: 'Engineering', active: true }]
+const block = encode(rows, { name: 'employees' })
+const restored = decode(block) // typed header preserves strings and booleans
+```
 
-**RAG over structured data.** When retrieved chunks are tabular (catalogs, order histories, log excerpts), vigesimal fits roughly 2.5× more records into the same context budget than pretty JSON.
+The output declares fields and types once:
 
-**Multi-agent handoffs.** The block is self-describing — header and legend travel with the data, so the receiving agent needs no side-channel schema.
+```text
+## employees: 1 rows
+fields: id,department,active
+types: string,string,boolean
+bool: 1=yes 0=no  null: _
 
-**Batch pipelines.** Token savings scale linearly with volume; a 60% reduction on a high-volume labeling pipeline is real money.
+00123,Engineering,1
+```
 
-**When *not* to use it:** deeply nested or heterogeneous JSON (the format is optimized for flat, repeated records — flatten selected fields or split nested sections into separate blocks, and keep original JSON for complex trees); one-off tiny payloads (header overhead outweighs savings below ~3 rows); and aggregation-heavy tasks (models are bad at arithmetic over *any* serialization — ours included; do the math in code and send results).
+Repeated strings can earn dictionary codes. Literal underscores, empty strings,
+newlines, quotes, and assigned-code collisions are escaped. Malformed blocks
+and schema mismatches fail explicitly.
 
-## The Maya inspiration
+## Supported data
 
-The name comes from the Maya **vigesimal (base-20)** number system — one of history's most token-efficient writing systems. The Maya wrote enormous values with three symbols (a dot, a bar, and a shell for zero) and positional notation; scribes swapped long syllabic spellings for single logograms when a word appeared often.
+- Arrays of plain, flat records with homogeneous types per column.
+- Strings, booleans, finite numbers other than negative zero, and null.
+- Empty arrays. Missing/undefined fields normalize to null in `encode()`.
+- Nested or mixed data is rejected by `encode()`; `analyze()` preserves valid
+  JSON through fallback. Sparse records also use JSON fallback to retain shape.
 
-The format borrows all three ideas: dictionary codes use 19 base-20 digits (`1-9`, `A-J`) per field; rows are positional (meaning comes from *where* a value sits, declared once in the header); `_`, `1`, `0` are the single-glyph shell/dot equivalents for null and booleans; and frequent values earn their own glyph — but only when the payoff rule proves the glyph pays for itself.
+Do not use this as a general JSON replacement, a prompt-injection defense, or
+an arithmetic engine. Keep trusted instructions separate from tool content.
+Compute aggregations in application code.
 
-## Documentation
+## Evidence, not guarantees
 
-- [BENCHMARK.md](BENCHMARK.md) — full methodology, exact prompts, scoring, raw results, threats to validity
-- [docs/format.md](docs/format.md) — wire-format grammar: quoting, collision rules, delta semantics, edge cases
-- [docs/design.md](docs/design.md) — why these choices: the payoff rule, 19 codes, tradeoffs vs CSV/JSON/TOON
+[The current serialization benchmark](benchmark/results/current-serialization.md)
+compares this TypeScript build, official TOON, compact/pretty JSON, and standard
+CSV. It records exact dependencies, content hashes, token counts and local
+encoding timings. Nested data is a separate track. CSV checks textual cell
+fidelity, not typed JSON round-trips. Run it with `cd vigesimal && npm run benchmark`.
 
-## Repository layout
+[Historical model evaluations](BENCHMARK.md) used an older format and a custom
+TOON-style baseline. The primary recorded accuracy difference was one question
+(114/179 vs 113/179), not established superiority. Those numbers do not validate
+the new format. Fresh paid quality evaluations remain pending.
 
-- `vigesimal/` — the TypeScript library (this is what you `import`)
-- `benchmark/` — Python harness measuring token counts *and* model comprehension across encoders
-- `tokenizer-bench/` — js-tiktoken micro-benchmarks used to design the format
-- `evals/` — evaluation definitions
+## Integrate and contribute
 
-## License
+- [Runnable tool-output example](vigesimal/examples/tool-output.mjs): prepares a
+  request, includes expected results, and reports measured payload savings; no API calls.
+- [Wire format](docs/format.md) and [migration](docs/migration.md).
+- [Design decisions](docs/design.md).
+- [Contributing](CONTRIBUTING.md) and [pilot plan](docs/pilot-plan.md).
 
-MIT
+Session deltas remain experimental. They require a retained baseline; deletion
+and null are currently conflated. Do not assume a short delta guarantees a
+cheaper or reliable complete conversation.
+
+## Development
+
+```bash
+cd vigesimal
+npm ci
+npm run typecheck
+npm run test:run
+npm run build
+npm run benchmark
+node examples/tool-output.mjs
+```
+
+The name is inspired by the Maya base-20 number system. The codec itself is
+plain text with positional rows and payoff-gated dictionary substitutions.
+
+MIT licensed. See [LICENSE](LICENSE).

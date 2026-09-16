@@ -1,6 +1,10 @@
 node_modules/
 dist/
 .env
+.env.*
+.DS_Store
+*.tsbuildinfo
+.sites-runtime/
 
 # Claude Code / superpowers internals
 .superpowers/
