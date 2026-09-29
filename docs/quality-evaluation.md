@@ -1,7 +1,53 @@
 # Quality evaluation release gate
 
-Status: not run for the new typed format. The local serialization benchmark
-does not measure LLM comprehension, production cost, or latency.
+Status: provider-neutral evaluation preparation is implemented; paid model runs
+have not been authorized for the new typed format. The local serialization
+benchmark does not measure LLM comprehension, production cost, or latency.
+
+## Prepare a frozen run
+
+```bash
+cd vigesimal
+npm ci
+npm run quality:test
+npm run quality:prepare -- --run-id pilot-01
+```
+
+This builds the current library, verifies JSON-value round trips for compact
+JSON, official TOON and typed Vigesimal, derives deterministic gold answers,
+randomizes conditions with a recorded seed, and writes `requests.jsonl` plus a
+hashed manifest under `benchmark/quality-runs/pilot-01/`. It makes no model
+calls. Nested datasets are recorded as excluded instead of being flattened.
+
+To prepare the same experiment from a directory of sanitized real workloads,
+place one flat JSON record array in each `.json` file and run:
+
+```bash
+npm run quality:prepare -- \
+  --run-id partner-01 \
+  --datasets-dir /absolute/path/to/sanitized-json
+```
+
+The generated requests contain the complete payloads. Keep the ignored run
+directory private and review every input before sending it to a provider.
+
+Provider responses use one JSON object per line with `requestId`, `response`,
+and optional `inputTokens`, `outputTokens`, `latencyMs`, or `error`. Score them
+without an LLM judge:
+
+```bash
+npm run quality:score -- \
+  --requests ../benchmark/quality-runs/pilot-01/requests.jsonl \
+  --responses ../benchmark/quality-runs/pilot-01/responses.jsonl
+```
+
+The report separates provider failures from wrong answers and shows both
+completion rate and accuracy conditional on completed calls. It also reports a
+question-clustered paired bootstrap interval and predeclared gates: at least 30%
+input reduction, at least 99% completion, and no more than a one-percentage-point
+accuracy regression at the lower 95% confidence bound. Run directories
+are ignored by Git because prompts and responses may contain pilot data; publish
+only reviewed, sanitized artifacts.
 
 Before spending: choose exact provider/model IDs and approve a capped budget.
 Do not use the historical hard-coded pricing table for a new budget estimate.

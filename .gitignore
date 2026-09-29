@@ -15,3 +15,4 @@ vigesimal-workspace/
 
 # LLMLingua-2 local dev
 benchmark/.venv-llmlingua/
+benchmark/quality-runs/

@@ -28,6 +28,9 @@
     "sync:playground": "npm run build && node scripts/sync-playground.mjs",
     "check:playground": "node scripts/sync-playground.mjs --check",
     "benchmark": "npm run build && node scripts/benchmark.mjs",
+    "quality:prepare": "npm run build && node scripts/quality-eval.mjs prepare",
+    "quality:score": "node scripts/quality-eval.mjs score",
+    "quality:test": "node --test scripts/quality-eval.test.mjs",
     "test:package": "npm run build && node scripts/smoke-package.mjs"
   },
   "devDependencies": {

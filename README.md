@@ -101,7 +101,10 @@ fidelity, not typed JSON round-trips. Run it with `cd vigesimal && npm run bench
 [Historical model evaluations](BENCHMARK.md) used an older format and a custom
 TOON-style baseline. The primary recorded accuracy difference was one question
 (114/179 vs 113/179), not established superiority. Those numbers do not validate
-the new format. Fresh paid quality evaluations remain pending.
+the new format. Fresh paid quality evaluations remain pending. The
+[provider-neutral quality workflow](docs/quality-evaluation.md) can already
+freeze randomized requests from the repository fixtures or a private directory
+of sanitized real workloads, then score provider responses without an LLM judge.
 
 ## Integrate and contribute
 

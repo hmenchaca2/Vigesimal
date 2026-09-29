@@ -21,7 +21,9 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run test:run
+      - run: npm run quality:test
       - run: npm run build
+      - run: npm run quality:prepare -- --output /tmp/vigesimal-quality-ci --run-id ci --repetitions 1
       - run: npm run check:playground
       - run: npm run benchmark
       - run: node bin/vigesimal.mjs analyze ../benchmark/datasets/employee_records.json --json
