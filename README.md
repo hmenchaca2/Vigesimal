@@ -114,9 +114,9 @@ of sanitized real workloads, then score provider responses without an LLM judge.
 - [Design decisions](docs/design.md).
 - [Contributing](CONTRIBUTING.md) and [pilot plan](docs/pilot-plan.md).
 
-Session deltas remain experimental. They require a retained baseline; deletion
-and null are currently conflated. Do not assume a short delta guarantees a
-cheaper or reliable complete conversation.
+Session deltas remain experimental. They require a retained baseline, and
+`applyDelta()` to merge a decoded delta back onto it. Do not assume a short
+delta guarantees a cheaper or reliable complete conversation.
 
 ## Development
 

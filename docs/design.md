@@ -28,3 +28,14 @@ Neither token counts nor lossless decoding establish model task accuracy.
 
 Session deltas are experimental transport shorthand. Retained-history costs,
 resynchronization and downstream task quality need separate evaluation.
+
+## Exported but undocumented: the adaptive/session layer
+
+`AdaptiveCompressor`, `SchemaRegistry`, `VigesimalVerifier`, and `selectPanels`
+are public exports with their own tests, but no stable, documented contract.
+`AdaptiveCompressor.createSession()` tracks state turn-by-turn and emits either
+a full block (on reset) or a delta string (`encodeDelta`); nothing in the
+library reconstructs session state from that stream — a caller must apply
+`applyDelta` (for the delta case) or `decode` (for the reset case) itself.
+Treat this layer as internal/experimental until it has its own design writeup;
+it may change shape without a semver-major bump until then.

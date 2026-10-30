@@ -130,6 +130,8 @@ declare class DeltaTracker {
     reset(): void;
 }
 
+declare function applyDelta(state: Record<string, unknown>, delta: DeltaMap): Record<string, unknown>;
+
 declare function inferSchema(name: string, sampleData: Record<string, unknown>[]): VigesimalSchema;
 
 declare function buildCodex(schema: VigesimalSchema): string;
@@ -159,4 +161,4 @@ declare function selectPanels(input: PanelSelectInput): Panel[];
 
 declare function computeResetThreshold(totalDeltaFields: number, turnsObserved: number): number;
 
-export { AdaptiveCompressor, type Analysis, type AnalyzeOptions, type CodeTable, type CompressResult, type CompressStats, type CompressorSession, type DeltaMap, type DeltaResult, DeltaTracker, type DeltaTrackerConfig, type EncodeOptions, type FieldDef, type FieldType, LEGEND, Panel, type ResetEvent, type ResetRule, SchemaRegistry, type TokenEstimator, type VerifyResult, type VigesimalSchema, VigesimalVerifier, analyze, buildCodes, buildCodex, computeResetThreshold, decode, decodeDelta, decodeScalar, decodeTabular, encode, encodeDelta, encodeHeader, encodeRow, encodeScalar, encodeTabular, estTokens, fieldLetters, inferSchema, parseJson, quoteCsv, selectPanels, splitCsvRow };
+export { AdaptiveCompressor, type Analysis, type AnalyzeOptions, type CodeTable, type CompressResult, type CompressStats, type CompressorSession, type DeltaMap, type DeltaResult, DeltaTracker, type DeltaTrackerConfig, type EncodeOptions, type FieldDef, type FieldType, LEGEND, Panel, type ResetEvent, type ResetRule, SchemaRegistry, type TokenEstimator, type VerifyResult, type VigesimalSchema, VigesimalVerifier, analyze, applyDelta, buildCodes, buildCodex, computeResetThreshold, decode, decodeDelta, decodeScalar, decodeTabular, encode, encodeDelta, encodeHeader, encodeRow, encodeScalar, encodeTabular, estTokens, fieldLetters, inferSchema, parseJson, quoteCsv, selectPanels, splitCsvRow };

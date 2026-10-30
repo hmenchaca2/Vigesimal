@@ -83,8 +83,9 @@ describe('encodeDelta', () => {
   it('renders keyed changed fields', () => {
     expect(encodeDelta({ step: '3/5', status: 'err' })).toBe('~step=3/5,~status=err')
   })
-  it('renders deletions as _', () => {
-    expect(encodeDelta({ gone: undefined })).toBe('~gone=_')
+  it('renders deletions with an empty value, distinct from null', () => {
+    expect(encodeDelta({ gone: undefined })).toBe('~gone=')
+    expect(encodeDelta({ gone: null })).toBe('~gone=_')
   })
   it('quotes values containing commas', () => {
     expect(encodeDelta({ msg: 'a,b' })).toBe('~msg="a,b"')

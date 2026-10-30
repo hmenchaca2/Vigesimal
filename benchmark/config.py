@@ -17,14 +17,15 @@ DATASETS = [
     "config",
 ]
 
-# Cost per 1M tokens (USD) — for estimate only
+# Cost per 1M tokens (USD) — for estimate only. Verified against official
+# pricing as of 2026-10-30; re-verify before any paid run (prices change).
 COST_PER_1M_INPUT: dict[str, float] = {
     "claude-haiku-4-5-20251001": 1.00,
-    "claude-sonnet-5": 2.00,  # introductory pricing through 2026-08-31 ($3 after)
+    "claude-sonnet-5": 2.00,
 }
 COST_PER_1M_OUTPUT: dict[str, float] = {
     "claude-haiku-4-5-20251001": 5.00,
-    "claude-sonnet-5": 10.00,  # introductory pricing through 2026-08-31 ($15 after)
+    "claude-sonnet-5": 10.00,
 }
 
 # Default fallback prices for unknown models (cents per 1M tokens)

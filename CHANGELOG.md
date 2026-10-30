@@ -16,6 +16,15 @@ JSON rejects duplicate keys, including escaped aliases. Session codices now
 include field types. Failed playground requests can be retried unchanged.
 Analysis compares coded and uncoded candidates and caches token counts. CI
 checks library/playground synchronization, playground types and production build.
+Keyed deltas distinguish deletion (`~field=`) from setting a field to null
+(`~field=_`); added `applyDelta(state, delta)` to merge a decoded delta.
+
+## 1.0.0 — 2026-07-03
+
+Published format: CSV rows with a shared field header and payoff-gated base-20
+dictionary codes for repeated strings. Measured on a 179-question paid
+benchmark (claude-haiku-4-5): comparable token count and accuracy to TOON — a
+near-tie, not a superiority claim. Published to npm as `vigesimal@1.0.0`.
 
 Added: local `analyze` API with verified JSON fallback; CLI with optional token
 counts; regression/property tests; CI and package smoke tests; official-library

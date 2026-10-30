@@ -99,7 +99,9 @@ export function decodeDelta(encoded: string, schema: VigesimalSchema): Record<st
     validateField(field)
     if (!types.has(field) || seen.has(field)) throw new Error(`Unknown or duplicate delta field: ${field}`)
     seen.add(field)
-    entries.push([field, decodeScalar(part.slice(eq + 1), types.get(field)!)])
+    const value = part.slice(eq + 1)
+    // Empty value after '=' marks deletion (distinct from '_', which is null).
+    entries.push([field, value === '' ? undefined : decodeScalar(value, types.get(field)!)])
   }
   return Object.fromEntries(entries)
 }

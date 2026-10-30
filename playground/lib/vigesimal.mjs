@@ -247,6 +247,7 @@ function encodeTabular(name, records, schema, est) {
 function encodeDelta(delta) {
   const pairs = Object.entries(delta).map(([k, v]) => {
     validateField(k);
+    if (v === void 0) return `~${k}=`;
     return `~${k}=${encodeScalar(v)}`;
   });
   return pairs.length > 0 ? pairs.join(",") : "~";
@@ -345,7 +346,8 @@ function decodeDelta(encoded, schema) {
     validateField(field);
     if (!types.has(field) || seen.has(field)) throw new Error(`Unknown or duplicate delta field: ${field}`);
     seen.add(field);
-    entries.push([field, decodeScalar(part.slice(eq + 1), types.get(field))]);
+    const value = part.slice(eq + 1);
+    entries.push([field, value === "" ? void 0 : decodeScalar(value, types.get(field))]);
   }
   return Object.fromEntries(entries);
 }
@@ -685,6 +687,16 @@ var AdaptiveCompressor = class {
   }
 };
 
+// src/delta/applyDelta.ts
+function applyDelta(state, delta) {
+  const next = { ...state };
+  for (const [field, value] of Object.entries(delta)) {
+    if (value === void 0) delete next[field];
+    else next[field] = value;
+  }
+  return next;
+}
+
 // src/schema/codex.ts
 function buildCodex(schema) {
   validateSchema(schema);
@@ -731,6 +743,7 @@ export {
   SchemaRegistry,
   VigesimalVerifier,
   analyze,
+  applyDelta,
   buildCodes,
   buildCodex,
   computeResetThreshold,

@@ -68,9 +68,12 @@ alongside the fields and scalar legend.
 ## Experimental deltas
 
 `~field=value` pairs use scalar quoting and a caller-supplied schema. Unknown
-or duplicate fields are rejected. `~` is an empty delta. `_` still conflates
-deletion and setting null. There is no sequence/baseline recovery protocol.
-Keep the baseline available and do not treat deltas as self-contained records.
+or duplicate fields are rejected. `~` is an empty delta. `~field=_` sets the
+field to null; `~field=` (no value) deletes it — `decodeDelta` returns
+`undefined` for a deleted field, and `applyDelta(state, delta)` merges a
+decoded delta onto a prior state, deleting fields marked that way. There is
+no sequence/baseline recovery protocol. Keep the baseline available and do
+not treat deltas as self-contained records.
 
 Nested config blocks in historical Python experiments are not part of this
 TypeScript API. Keep nested values as JSON rather than silently flattening them.

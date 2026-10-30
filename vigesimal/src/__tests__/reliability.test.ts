@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { encode, decode, inferSchema, VigesimalVerifier, encodeDelta, decodeDelta, DeltaTracker } from '../index'
+import { encode, decode, inferSchema, VigesimalVerifier, encodeDelta, decodeDelta, DeltaTracker, applyDelta } from '../index'
 
 describe('supported round-trips', () => {
   const cases = [[], [{ x: '_' }], [{ x: '' }], [{ x: '00123' }], [{ x: 'a\nb' }],
@@ -31,7 +31,20 @@ describe('supported round-trips', () => {
     tracker.update(JSON.parse('{"__proto__":"old","constructor":"old"}'))
     const next = tracker.update(JSON.parse('{"__proto__":"new"}'))
     expect(Object.keys(next.delta)).toEqual(['__proto__', 'constructor'])
-    expect(encodeDelta(next.delta)).toBe('~__proto__=new,~constructor=_')
+    expect(encodeDelta(next.delta)).toBe('~__proto__=new,~constructor=')
+  })
+  it('distinguishes a deleted field from one explicitly set to null, end to end', () => {
+    const tracker = new DeltaTracker()
+    tracker.update({ a: 1, b: 2 })
+    const next = tracker.update({ a: null })
+    const schema = { name: 't', fields: [{ name: 'a', type: 'numeric' as const }, { name: 'b', type: 'numeric' as const }] }
+    const encoded = encodeDelta(next.delta)
+    expect(encoded).toBe('~a=_,~b=')
+    const decoded = decodeDelta(encoded, schema)
+    expect(decoded.a).toBe(null)
+    expect(decoded.b).toBe(undefined)
+    expect('b' in decoded).toBe(true)
+    expect(applyDelta({ a: 1, b: 2 }, decoded)).toEqual({ a: null })
   })
   it('reads legacy blocks without guessing types', () => {
     const legacy = '## t: 1 rows\nfields: id\nbool: 1=yes 0=no  null: _\n\n00123\n'

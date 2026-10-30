@@ -16,6 +16,11 @@ release, not silently replace 1.0.0. The working tree is not a published release
    to retain sparse record shape through fallback.
 7. Compression statistics can be negative when encoding expands a payload.
 8. Unknown/duplicate delta fields are rejected; update your explicit schema.
+9. Deletion now has its own delta syntax: `~field=` (no value) deletes a
+   field, distinct from `~field=_` (sets it to null). A consumer that
+   special-cased `_` as "deleted" must switch to the empty-value form, or
+   use the new `applyDelta(state, decodedDelta)` helper, which does this
+   correctly.
 
 Run saved fixtures through both producers and consumers before rollout. Re-run
 model-quality tests: the old benchmark does not validate the new payloads.

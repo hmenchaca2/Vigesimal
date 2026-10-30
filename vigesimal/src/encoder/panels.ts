@@ -70,10 +70,13 @@ export function encodeTabular(
   return header + rows.join('\n') + '\n'
 }
 
-// Keyed delta: ~field=value pairs, comma-separated; undefined -> _ (deletion).
+// Keyed delta: ~field=value pairs, comma-separated. undefined -> ~field (no
+// value: deletion, distinct from null, which encodes as ~field=_). encodeScalar
+// never produces an empty unquoted value, so the empty-value form is unambiguous.
 export function encodeDelta(delta: DeltaMap): string {
   const pairs = Object.entries(delta).map(([k, v]) => {
     validateField(k)
+    if (v === undefined) return `~${k}=`
     return `~${k}=${encodeScalar(v)}`
   })
   return pairs.length > 0 ? pairs.join(',') : '~'

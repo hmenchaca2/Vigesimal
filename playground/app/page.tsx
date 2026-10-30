@@ -101,7 +101,9 @@ export default function Home() {
     const anchor = document.createElement('a');
     anchor.href = url;
     anchor.download = 'vigesimal-analysis.json';
+    document.body.appendChild(anchor);
     anchor.click();
+    anchor.remove();
     URL.revokeObjectURL(url);
     setNotice('Analysis downloaded.');
   }
